@@ -1,0 +1,82 @@
+[
+  {
+    "id": "RISK-01",
+    "source": "FCA COBS 4.5.2R(2)",
+    "source_url": "https://www.handbook.fca.org.uk/handbook/COBS/4/5.html",
+    "rule_text": "A firm must ensure that information: ... (2) is accurate and always gives a fair and prominent indication of any relevant risks when referencing any potential benefits of relevant business or a relevant investment;",
+    "test": "Where the claim mentions a benefit (returns, income, tax relief, growth), is there a fair and equally prominent statement of the relevant risks alongside it?",
+    "applies_to": "retail",
+    "fail_example": "Earn a fixed 9% income every year.",
+    "pass_example": "Target income of 9% a year, which is not guaranteed. If borrowers default you could lose some or all of your money."
+  },
+  {
+    "id": "RISK-02",
+    "source": "FCA COBS 4.5.2R(5)",
+    "source_url": "https://www.handbook.fca.org.uk/handbook/COBS/4/5.html",
+    "rule_text": "A firm must ensure that information: ... (5) uses a font size in the indication of relevant risks that is at least equal to the predominant font size used throughout the information provided, as well as a layout that ensures that such indication is prominent;",
+    "test": "Is the risk wording at least the same font size as the main body text and laid out so it stands out (not in a footer, fold-out or small print)?",
+    "applies_to": "retail",
+    "fail_example": "[Headline in 24pt] Double-digit growth potential. [Footer in 6pt grey] Capital at risk.",
+    "pass_example": "[Headline and body in 14pt] Double-digit growth potential - but your capital is at risk and you may get back less than you invest."
+  },
+  {
+    "id": "RISK-03",
+    "source": "FCA COBS 4.2.4G(1)",
+    "source_url": "https://www.handbook.fca.org.uk/handbook/COBS/4/2.html",
+    "rule_text": "A firm should ensure that a financial promotion: (1) for a product or service that places a client's capital at risk makes this clear;",
+    "test": "If the investment can lose money, does the promotion clearly say the client's capital is at risk?",
+    "applies_to": "all",
+    "fail_example": "Invest in our private equity fund and watch your wealth grow.",
+    "pass_example": "Invest in our private equity fund. Your capital is at risk and you could lose all of the money you invest."
+  },
+  {
+    "id": "RISK-04",
+    "source": "FCA COBS 4.12A.38R and 4.12A.39G",
+    "source_url": "https://www.handbook.fca.org.uk/handbook/COBS/4/12A.html",
+    "rule_text": "4.12A.38R: The financial promotion must not contain any design feature which has the intent or effect of reducing the visibility or prominence of the risk warning or risk summary. 4.12A.39G: ... design features which might reduce the visibility or prominence ... include, but are not limited to: (1) using a font size for the risk warning or risk summary that is smaller than the standard size used in the financial promotion; (2) using a background colour that does not sufficiently contrast the text ...; (3) fading the text ...; (4) placing the risk warning or risk summary at the bottom of the promotion or embedding it within other standard information ...; (5) requiring additional links to be clicked in order for the full text of the risk warning to be seen; ...",
+    "test": "For a high-risk (restricted mass market) investment, is the risk warning faded, small, low-contrast, at the bottom, buried in legal text, or only visible via a click-through?",
+    "applies_to": "retail",
+    "fail_example": "Back the next unicorn today! [Risk warning: see link in footer]",
+    "pass_example": "[Boxed, bold, top of page] Don’t invest unless you’re prepared to lose all the money you invest. This is a high-risk investment and you are unlikely to be protected if something goes wrong. Back early-stage businesses today."
+  },
+  {
+    "id": "RISK-05",
+    "source": "FCA COBS 4.12B.20R and 4.12B.21R(1)",
+    "source_url": "https://www.handbook.fca.org.uk/handbook/COBS/4/12B.html",
+    "rule_text": "4.12B.20R: A firm must not communicate or approve a financial promotion which relates to a non-mass market investment unless it contains a risk warning that complies with COBS 4.12B.21R. 4.12B.21R(1): For the purposes of COBS 4.12B.20R the financial promotion must contain the following risk warning: Don’t invest unless you’re prepared to lose all the money you invest. This is a high-risk investment and you are unlikely to be protected if something goes wrong.",
+    "test": "If the claim promotes a non-mass market investment (e.g. units in an unregulated collective investment scheme such as many private equity vehicles) to retail investors, does it carry the exact prescribed risk warning?",
+    "applies_to": "retail",
+    "fail_example": "Exclusive access to our unregulated private equity fund - limited spaces, invest now.",
+    "pass_example": "Don’t invest unless you’re prepared to lose all the money you invest. This is a high-risk investment and you are unlikely to be protected if something goes wrong."
+  },
+  {
+    "id": "RISK-06",
+    "source": "FCA COBS 4.5.16R(2)-(3)",
+    "source_url": "https://www.handbook.fca.org.uk/handbook/COBS/4/5.html",
+    "rule_text": "(2) A firm must ensure that the following risk warning is given: “[Name of fund] invests in assets that may at times be hard to sell. This means that there may be occasions when you experience a delay or receive less than you might otherwise expect when selling your investment. For more information on risks, see the prospectus and key investor information document.” (3) If the financial promotion is a non-real time financial promotion, a firm must ensure that the risk warning is prominently placed in the financial promotion in a font size that is at least equal to the predominant font size used throughout the communication.",
+    "test": "If the claim promotes a fund investing in inherently illiquid assets (FIIA, e.g. property or private assets), does it include the prescribed 'hard to sell' warning prominently, and avoid implying daily or easy access?",
+    "applies_to": "retail",
+    "fail_example": "Daily access to your money, backed by bricks and mortar.",
+    "pass_example": "Example Property Fund invests in assets that may at times be hard to sell. This means that there may be occasions when you experience a delay or receive less than you might otherwise expect when selling your investment. For more information on risks, see the prospectus and key investor information document."
+  },
+  {
+    "id": "RISK-07",
+    "source": "FCA COBS 4.12A.11R(1)(c)",
+    "source_url": "https://www.handbook.fca.org.uk/handbook/COBS/4/12A.html",
+    "rule_text": "(1) For the purposes of COBS 4.12A.10R, the financial promotion must contain: ... (c) the following risk warning if the financial promotion relates to a unit in a long-term asset fund: This is a high-risk investment, and assets may take a long time to buy and sell. Only invest if you can wait (possibly several years) to get your money back. You do not have protection against poor performance.",
+    "test": "If the claim promotes a long-term asset fund (LTAF, typically holding private equity, private credit or infrastructure) to retail investors, does it include the prescribed LTAF risk warning and avoid suggesting quick access to money?",
+    "applies_to": "retail",
+    "fail_example": "Get private equity returns with the flexibility to cash out whenever you like.",
+    "pass_example": "This is a high-risk investment, and assets may take a long time to buy and sell. Only invest if you can wait (possibly several years) to get your money back. You do not have protection against poor performance."
+  },
+  {
+    "id": "RISK-08",
+    "source": "FCA COBS 4.5A.10R(5)",
+    "source_url": "https://www.handbook.fca.org.uk/handbook/COBS/4/5A.html",
+    "rule_text": "A firm must ensure that information that contains an indication of past performance of a financial instrument, a financial index or an investment service satisfies the following conditions: ... (5) if the indication relies on figures denominated in a currency other than pounds sterling, the currency is clearly stated, together with a warning that the return may increase or decrease as a result of currency fluctuations;",
+    "test": "Where returns are shown in a currency other than sterling (e.g. a USD or EUR share class), is the currency stated and is there a warning that currency movements can raise or lower returns?",
+    "applies_to": "all",
+    "fail_example": "Returned 11% a year over five years.",
+    "pass_example": "Returned 11% a year over the five years to 30 June 2026 in US dollars. Returns may increase or decrease as a result of currency fluctuations."
+  }
+]

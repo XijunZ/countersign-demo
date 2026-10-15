@@ -1,0 +1,450 @@
+{
+  "phrases": [
+    {
+      "id": "UK-CAR-1",
+      "jurisdiction": "UK",
+      "topic": "capital_at_risk",
+      "rule_areas": [
+        "risk_warnings",
+        "fair_clear",
+        "house_rules"
+      ],
+      "text": "Your capital is at risk. The value of your investment can fall as well as rise and you may get back less than you invest.",
+      "prescribed": false,
+      "source": "Suggested standard wording (not prescribed); supports FCA COBS 4.2.4G(1) and COBS 4.5.2R(2)",
+      "source_url": "https://www.handbook.fca.org.uk/handbook/COBS/4/2.html"
+    },
+    {
+      "id": "UK-CAR-2",
+      "jurisdiction": "UK",
+      "topic": "capital_at_risk",
+      "rule_areas": [
+        "risk_warnings",
+        "fair_clear",
+        "house_rules"
+      ],
+      "text": "This investment is not covered by any guarantee and you could lose some or all of the money you invest.",
+      "prescribed": false,
+      "source": "Suggested standard wording (not prescribed); supports FCA COBS 4.2.5G",
+      "source_url": "https://www.handbook.fca.org.uk/handbook/COBS/4/2.html"
+    },
+    {
+      "id": "UK-CAR-3",
+      "jurisdiction": "UK",
+      "topic": "capital_at_risk",
+      "rule_areas": [
+        "risk_warnings",
+        "status_audience"
+      ],
+      "text": "Don’t invest unless you’re prepared to lose all the money you invest. This is a high-risk investment and you are unlikely to be protected if something goes wrong.",
+      "prescribed": true,
+      "source": "FCA COBS 4.12B.21R(1) (non-mass market investments); same wording in COBS 4.12A.11R(1)(a) (non-readily realisable securities)",
+      "source_url": "https://www.handbook.fca.org.uk/handbook/COBS/4/12B.html"
+    },
+    {
+      "id": "UK-CAR-4",
+      "jurisdiction": "UK",
+      "topic": "capital_at_risk",
+      "rule_areas": [
+        "risk_warnings"
+      ],
+      "text": "Don’t invest unless you’re prepared to lose all the money you invest.",
+      "prescribed": true,
+      "source": "FCA COBS 4.12A.11R(2)(a) (shortened warning where a third-party marketing provider's character limit is exceeded)",
+      "source_url": "https://www.handbook.fca.org.uk/handbook/COBS/4/12A.html"
+    },
+    {
+      "id": "UK-PP-1",
+      "jurisdiction": "UK",
+      "topic": "past_performance",
+      "rule_areas": [
+        "performance"
+      ],
+      "text": "These figures refer to the past and past performance is not a reliable indicator of future results.",
+      "prescribed": true,
+      "source": "FCA COBS 4.6.2R(4) (required warning; wording taken verbatim from the rule)",
+      "source_url": "https://www.handbook.fca.org.uk/handbook/COBS/4/6.html"
+    },
+    {
+      "id": "UK-PP-2",
+      "jurisdiction": "UK",
+      "topic": "past_performance",
+      "rule_areas": [
+        "performance"
+      ],
+      "text": "These figures refer to simulated past performance and past performance is not a reliable indicator of future performance.",
+      "prescribed": true,
+      "source": "FCA COBS 4.6.6R(4) (required warning; wording taken verbatim from the rule)",
+      "source_url": "https://www.handbook.fca.org.uk/handbook/COBS/4/6.html"
+    },
+    {
+      "id": "UK-FT-1",
+      "jurisdiction": "UK",
+      "topic": "forecast_target",
+      "rule_areas": [
+        "performance"
+      ],
+      "text": "Forecasts are not a reliable indicator of future performance.",
+      "prescribed": true,
+      "source": "FCA COBS 4.6.7R(1)(d) (required warning; wording taken verbatim from the rule)",
+      "source_url": "https://www.handbook.fca.org.uk/handbook/COBS/4/6.html"
+    },
+    {
+      "id": "UK-FT-2",
+      "jurisdiction": "UK",
+      "topic": "forecast_target",
+      "rule_areas": [
+        "performance",
+        "risk_warnings"
+      ],
+      "text": "This target is based on the assumptions set out in [section/page]. In a downside scenario you could lose money.",
+      "prescribed": false,
+      "source": "Suggested standard wording (not prescribed); supports FCA COBS 4.6.7R(1)(b) and (ca)",
+      "source_url": "https://www.handbook.fca.org.uk/handbook/COBS/4/6.html"
+    },
+    {
+      "id": "UK-YI-1",
+      "jurisdiction": "UK",
+      "topic": "yield_income",
+      "rule_areas": [
+        "risk_warnings",
+        "house_rules"
+      ],
+      "text": "Income is not guaranteed and may fall as well as rise.",
+      "prescribed": false,
+      "source": "Suggested standard wording (not prescribed); supports FCA COBS 4.5.2R(2)",
+      "source_url": "https://www.handbook.fca.org.uk/handbook/COBS/4/5.html"
+    },
+    {
+      "id": "UK-TAX-1",
+      "jurisdiction": "UK",
+      "topic": "tax",
+      "rule_areas": [
+        "fair_clear",
+        "risk_warnings"
+      ],
+      "text": "Tax treatment depends on your individual circumstances and may change in the future.",
+      "prescribed": false,
+      "source": "Suggested standard wording (not prescribed); supports FCA COBS 4.5.2R(2)-(3)",
+      "source_url": "https://www.handbook.fca.org.uk/handbook/COBS/4/5.html"
+    },
+    {
+      "id": "UK-AUD-1",
+      "jurisdiction": "UK",
+      "topic": "audience_professional",
+      "rule_areas": [
+        "status_audience"
+      ],
+      "text": "This document is directed only at persons having professional experience in matters relating to investments, and any investment to which it relates is available only to such persons. Persons who do not have professional experience in matters relating to investments should not rely on it.",
+      "prescribed": false,
+      "source": "Suggested standard wording (not prescribed); tracks the indications required by Financial Promotion Order 2005 Art 19(4)(a)-(b), which prescribe content rather than exact words",
+      "source_url": "https://www.legislation.gov.uk/uksi/2005/1529/article/19"
+    },
+    {
+      "id": "UK-AUD-2",
+      "jurisdiction": "UK",
+      "topic": "audience_professional",
+      "rule_areas": [
+        "status_audience"
+      ],
+      "text": "The content of this promotion has not been approved by an authorised person within the meaning of the Financial Services and Markets Act 2000. Reliance on this promotion for the purpose of engaging in any investment activity may expose an individual to a significant risk of losing all of the property or other assets invested.",
+      "prescribed": true,
+      "source": "Financial Promotion Order 2005 (SI 2005/1529) Art 48(5) (high net worth individuals exemption)",
+      "source_url": "https://www.legislation.gov.uk/uksi/2005/1529/article/48"
+    },
+    {
+      "id": "UK-ILL-1",
+      "jurisdiction": "UK",
+      "topic": "illiquidity",
+      "rule_areas": [
+        "risk_warnings"
+      ],
+      "text": "[Name of fund] invests in assets that may at times be hard to sell. This means that there may be occasions when you experience a delay or receive less than you might otherwise expect when selling your investment. For more information on risks, see the prospectus and key investor information document.",
+      "prescribed": true,
+      "source": "FCA COBS 4.5.16R(2) (funds investing in inherently illiquid assets)",
+      "source_url": "https://www.handbook.fca.org.uk/handbook/COBS/4/5.html"
+    },
+    {
+      "id": "UK-ILL-2",
+      "jurisdiction": "UK",
+      "topic": "illiquidity",
+      "rule_areas": [
+        "risk_warnings"
+      ],
+      "text": "This is a high-risk investment, and assets may take a long time to buy and sell. Only invest if you can wait (possibly several years) to get your money back. You do not have protection against poor performance.",
+      "prescribed": true,
+      "source": "FCA COBS 4.12A.11R(1)(c) (long-term asset funds)",
+      "source_url": "https://www.handbook.fca.org.uk/handbook/COBS/4/12A.html"
+    },
+    {
+      "id": "UK-CUR-1",
+      "jurisdiction": "UK",
+      "topic": "currency",
+      "rule_areas": [
+        "performance",
+        "risk_warnings"
+      ],
+      "text": "Figures are shown in [currency]. The return may increase or decrease as a result of currency fluctuations.",
+      "prescribed": true,
+      "source": "FCA COBS 4.6.2R(5) / COBS 4.5A.10R(5) (currency must be stated with this warning; warning wording taken verbatim from the rule)",
+      "source_url": "https://www.handbook.fca.org.uk/handbook/COBS/4/6.html"
+    },
+    {
+      "id": "UK-FEE-1",
+      "jurisdiction": "UK",
+      "topic": "fees_net",
+      "rule_areas": [
+        "performance",
+        "fair_clear"
+      ],
+      "text": "Performance is shown net of all fees and charges.",
+      "prescribed": false,
+      "source": "Suggested standard wording (not prescribed); supports FCA COBS 4.6.2R(6)",
+      "source_url": "https://www.handbook.fca.org.uk/handbook/COBS/4/6.html"
+    },
+    {
+      "id": "UK-FEE-2",
+      "jurisdiction": "UK",
+      "topic": "fees_net",
+      "rule_areas": [
+        "performance"
+      ],
+      "text": "Figures are shown before fees. After [management fees and carried interest] the net return was [x]%.",
+      "prescribed": false,
+      "source": "Suggested standard wording (not prescribed); supports FCA COBS 4.6.2R(6)",
+      "source_url": "https://www.handbook.fca.org.uk/handbook/COBS/4/6.html"
+    },
+    {
+      "id": "UK-APP-1",
+      "jurisdiction": "UK",
+      "topic": "approval_status",
+      "rule_areas": [
+        "status_audience"
+      ],
+      "text": "Approver FRN [firm reference number]",
+      "prescribed": true,
+      "source": "FCA COBS 4.5.2AR(3) (required link format where approver details are given via a webpage)",
+      "source_url": "https://www.handbook.fca.org.uk/handbook/COBS/4/5.html"
+    },
+    {
+      "id": "UK-APP-2",
+      "jurisdiction": "UK",
+      "topic": "approval_status",
+      "rule_areas": [
+        "status_audience",
+        "fair_clear"
+      ],
+      "text": "[Firm] is authorised and regulated by the Financial Conduct Authority. [Product] is not regulated by the FCA and is not covered by the Financial Services Compensation Scheme.",
+      "prescribed": false,
+      "source": "Suggested standard wording (not prescribed); supports FCA COBS 4.2.4G(4) and GEN 4.5.6G",
+      "source_url": "https://www.handbook.fca.org.uk/handbook/GEN/4/5.html"
+    },
+    {
+      "id": "EU-MKT-1",
+      "jurisdiction": "EU",
+      "topic": "marketing_identification",
+      "rule_areas": [
+        "eu_esma"
+      ],
+      "text": "#MarketingCommunication",
+      "prescribed": true,
+      "source": "ESMA34-45-1272 para 8 (social media platforms)",
+      "source_url": "https://www.esma.europa.eu/sites/default/files/library/esma34-45-1272_guidelines_on_marketing_communications.pdf"
+    },
+    {
+      "id": "EU-MKT-2",
+      "jurisdiction": "EU",
+      "topic": "marketing_identification",
+      "rule_areas": [
+        "eu_esma"
+      ],
+      "text": "Marketing Communication",
+      "prescribed": true,
+      "source": "ESMA34-45-1272 para 8 (banners and short videos)",
+      "source_url": "https://www.esma.europa.eu/sites/default/files/library/esma34-45-1272_guidelines_on_marketing_communications.pdf"
+    },
+    {
+      "id": "EU-MKT-3",
+      "jurisdiction": "EU",
+      "topic": "marketing_identification",
+      "rule_areas": [
+        "eu_esma"
+      ],
+      "text": "This is a marketing communication. Please refer to the [prospectus of the [UCITS/AIF/EuSEF/EuVECA]/Information document of the [AIF/EuSEF/EuVECA] and to the [KIID/KID] (delete as applicable)] before making any final investment decisions.",
+      "prescribed": true,
+      "source": "ESMA34-45-1272 para 7 (model disclaimer: 'a disclaimer such as the following')",
+      "source_url": "https://www.esma.europa.eu/sites/default/files/library/esma34-45-1272_guidelines_on_marketing_communications.pdf"
+    },
+    {
+      "id": "EU-PP-1",
+      "jurisdiction": "EU",
+      "topic": "past_performance",
+      "rule_areas": [
+        "eu_esma",
+        "performance"
+      ],
+      "text": "Past performance does not predict future returns.",
+      "prescribed": true,
+      "source": "ESMA34-45-1272 para 47 (statement must precede past performance information)",
+      "source_url": "https://www.esma.europa.eu/sites/default/files/library/esma34-45-1272_guidelines_on_marketing_communications.pdf"
+    },
+    {
+      "id": "EU-FT-1",
+      "jurisdiction": "EU",
+      "topic": "forecast_target",
+      "rule_areas": [
+        "eu_esma"
+      ],
+      "text": "Investment may lead to a financial loss, as no guarantee on the capital is in place.",
+      "prescribed": false,
+      "source": "Suggested standard wording (not prescribed); implements the statement required by ESMA34-45-1272 para 57, which prescribes content rather than exact words",
+      "source_url": "https://www.esma.europa.eu/sites/default/files/library/esma34-45-1272_guidelines_on_marketing_communications.pdf"
+    },
+    {
+      "id": "EU-TAX-1",
+      "jurisdiction": "EU",
+      "topic": "tax",
+      "rule_areas": [
+        "eu_esma"
+      ],
+      "text": "Future performance is subject to taxation, which depends on the personal situation of each investor and which may change in the future.",
+      "prescribed": false,
+      "source": "Suggested standard wording (not prescribed); implements the disclaimer required by ESMA34-45-1272 para 56, which prescribes content rather than exact words",
+      "source_url": "https://www.esma.europa.eu/sites/default/files/library/esma34-45-1272_guidelines_on_marketing_communications.pdf"
+    },
+    {
+      "id": "EU-RR-1",
+      "jurisdiction": "EU",
+      "topic": "capital_at_risk",
+      "rule_areas": [
+        "eu_esma",
+        "risk_warnings"
+      ],
+      "text": "Returns are not guaranteed and the value of your investment can fall; you may lose all or part of your investment.",
+      "prescribed": false,
+      "source": "Suggested standard wording (not prescribed); place at the same level as, or immediately after, any reward statement per ESMA34-45-1272 paras 13-15 and para 32",
+      "source_url": "https://www.esma.europa.eu/sites/default/files/library/esma34-45-1272_guidelines_on_marketing_communications.pdf"
+    },
+    {
+      "id": "EU-ESG-1",
+      "jurisdiction": "EU",
+      "topic": "sustainability",
+      "rule_areas": [
+        "eu_esma"
+      ],
+      "text": "Information on the sustainability-related aspects of the fund, as required by Regulation (EU) 2019/2088 (SFDR), is available at [link].",
+      "prescribed": false,
+      "source": "Suggested standard wording (not prescribed); supports ESMA34-45-1272 para 60 (link to SFDR website disclosures)",
+      "source_url": "https://www.esma.europa.eu/sites/default/files/library/esma34-45-1272_guidelines_on_marketing_communications.pdf"
+    },
+    {
+      "id": "EU-ESG-2",
+      "jurisdiction": "EU",
+      "topic": "sustainability",
+      "rule_areas": [
+        "eu_esma"
+      ],
+      "text": "The fund promotes environmental and/or social characteristics as described in its prospectus; it does not have sustainable investment as its objective.",
+      "prescribed": false,
+      "source": "Suggested standard wording (not prescribed); supports ESMA34-45-1272 paras 60-61 (adapt to the fund's actual SFDR classification)",
+      "source_url": "https://www.esma.europa.eu/sites/default/files/library/esma34-45-1272_guidelines_on_marketing_communications.pdf"
+    },
+    {
+      "id": "US-PP-1",
+      "jurisdiction": "US",
+      "topic": "past_performance",
+      "rule_areas": [
+        "us_sec"
+      ],
+      "text": "Past performance does not guarantee future results.",
+      "prescribed": false,
+      "source": "Suggested standard wording (not prescribed); common industry convention supporting FINRA Rule 2210(d)(1)(F) and SEC Marketing Rule fair-and-balanced requirements",
+      "source_url": "https://www.finra.org/rules-guidance/rulebooks/finra-rules/2210"
+    },
+    {
+      "id": "US-CAR-1",
+      "jurisdiction": "US",
+      "topic": "capital_at_risk",
+      "rule_areas": [
+        "us_sec"
+      ],
+      "text": "Investing involves risk, including possible loss of principal.",
+      "prescribed": false,
+      "source": "Suggested standard wording (not prescribed); supports SEC Marketing Rule 17 CFR 275.206(4)-1(a)(4)",
+      "source_url": "https://www.ecfr.gov/current/title-17/chapter-II/part-275/section-275.206(4)-1"
+    },
+    {
+      "id": "US-FEE-1",
+      "jurisdiction": "US",
+      "topic": "fees_net",
+      "rule_areas": [
+        "us_sec"
+      ],
+      "text": "Returns are shown both gross and net of fees for the same period. Net returns reflect the deduction of [advisory fees and other expenses]; gross returns do not.",
+      "prescribed": false,
+      "source": "Suggested standard wording (not prescribed); supports SEC Marketing Rule 17 CFR 275.206(4)-1(d)(1)",
+      "source_url": "https://www.ecfr.gov/current/title-17/chapter-II/part-275/section-275.206(4)-1"
+    },
+    {
+      "id": "US-HYP-1",
+      "jurisdiction": "US",
+      "topic": "past_performance",
+      "rule_areas": [
+        "us_sec"
+      ],
+      "text": "These results are hypothetical, do not reflect actual trading and are based on the following assumptions: [assumptions]. Hypothetical performance has inherent limitations, including the benefit of hindsight, and actual results will differ.",
+      "prescribed": false,
+      "source": "Suggested standard wording (not prescribed); supports SEC Marketing Rule 17 CFR 275.206(4)-1(d)(6)",
+      "source_url": "https://www.ecfr.gov/current/title-17/chapter-II/part-275/section-275.206(4)-1"
+    },
+    {
+      "id": "US-TST-1",
+      "jurisdiction": "US",
+      "topic": "marketing_identification",
+      "rule_areas": [
+        "us_sec"
+      ],
+      "text": "This testimonial was given by a [current client / non-client], who [was / was not] compensated for it. [Brief statement of any material conflict of interest.]",
+      "prescribed": false,
+      "source": "Suggested standard wording (not prescribed); supports SEC Marketing Rule 17 CFR 275.206(4)-1(b)(1)(i)",
+      "source_url": "https://www.ecfr.gov/current/title-17/chapter-II/part-275/section-275.206(4)-1"
+    },
+    {
+      "id": "ALL-FT-1",
+      "jurisdiction": "ALL",
+      "topic": "forecast_target",
+      "rule_areas": [
+        "house_rules"
+      ],
+      "text": "Targets are not guaranteed and may not be achieved.",
+      "prescribed": true,
+      "source": "House rule HOUSE-03: Marketing Compliance Policy v1, s.3.1 (mandatory house wording, not a regulator requirement)",
+      "source_url": ""
+    },
+    {
+      "id": "ALL-CAR-1",
+      "jurisdiction": "ALL",
+      "topic": "capital_at_risk",
+      "rule_areas": [
+        "house_rules",
+        "risk_warnings"
+      ],
+      "text": "Capital at risk.",
+      "prescribed": false,
+      "source": "Suggested standard wording (not prescribed); short form for headlines and social images (see HOUSE-06)",
+      "source_url": ""
+    },
+    {
+      "id": "ALL-YI-1",
+      "jurisdiction": "ALL",
+      "topic": "yield_income",
+      "rule_areas": [
+        "house_rules"
+      ],
+      "text": "The fund aims to provide an income, which is not guaranteed and can fall.",
+      "prescribed": false,
+      "source": "Suggested standard wording (not prescribed); avoids cash/deposit comparisons per HOUSE-05",
+      "source_url": ""
+    }
+  ]
+}

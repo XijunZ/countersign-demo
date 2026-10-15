@@ -1,0 +1,82 @@
+[
+  {
+    "id": "PERF-01",
+    "source": "FCA COBS 4.6.2R(1)",
+    "source_url": "https://www.handbook.fca.org.uk/handbook/COBS/4/6.html",
+    "rule_text": "A firm must ensure that information that contains an indication of past performance of relevant business, a relevant investment or a financial index, satisfies the following conditions: (1) that indication is not the most prominent feature of the communication;",
+    "test": "Is past performance the headline or dominant visual element of the communication?",
+    "applies_to": "retail",
+    "fail_example": "[Giant headline] +38% LAST YEAR!",
+    "pass_example": "[Headline] A diversified growth fund for long-term investors. [Body] Past performance figures, risks and charges are shown below."
+  },
+  {
+    "id": "PERF-02",
+    "source": "FCA COBS 4.6.2R(2)",
+    "source_url": "https://www.handbook.fca.org.uk/handbook/COBS/4/6.html",
+    "rule_text": "(2) the information includes appropriate performance information which covers the preceding five years, or the whole period for which the investment has been offered, the financial index has been established, or the service has been provided (where less than five years, or such longer period as the firm may decide), and in every case that performance information must be based on complete 12-month periods;",
+    "test": "Does performance cover the preceding five years (or since launch if shorter) in complete 12-month periods, rather than a cherry-picked window or partial period?",
+    "applies_to": "retail",
+    "fail_example": "Up 24% in the last 7 months.",
+    "pass_example": "12-month returns to 30 June: 2022 -4.1%, 2023 6.3%, 2024 8.9%, 2025 2.2%, 2026 7.5%."
+  },
+  {
+    "id": "PERF-03",
+    "source": "FCA COBS 4.6.2R(3)",
+    "source_url": "https://www.handbook.fca.org.uk/handbook/COBS/4/6.html",
+    "rule_text": "(3) the reference period and the source of information are clearly stated;",
+    "test": "Does the performance figure state exactly which period it covers and where the data comes from?",
+    "applies_to": "retail",
+    "fail_example": "Our strategy has delivered strong double-digit returns.",
+    "pass_example": "Annualised return of 10.2% for the five years to 30 June 2026 (source: fund administrator, net of fees, GBP)."
+  },
+  {
+    "id": "PERF-04",
+    "source": "FCA COBS 4.6.2R(4)",
+    "source_url": "https://www.handbook.fca.org.uk/handbook/COBS/4/6.html",
+    "rule_text": "(4) the information contains a prominent warning that the figures refer to the past and that past performance is not a reliable indicator of future results;",
+    "test": "Is there a prominent warning, near the figures, that they refer to the past and past performance is not a reliable indicator of future results?",
+    "applies_to": "retail",
+    "fail_example": "Returned 12% a year for five years - expect more of the same.",
+    "pass_example": "Returned 12% a year over the five years to 30 June 2026. These figures refer to the past and past performance is not a reliable indicator of future results."
+  },
+  {
+    "id": "PERF-05",
+    "source": "FCA COBS 4.6.2R(6)",
+    "source_url": "https://www.handbook.fca.org.uk/handbook/COBS/4/6.html",
+    "rule_text": "(6) if the indication is based on gross performance, the effect of commissions, fees or other charges is disclosed.",
+    "test": "If the figure is gross (before fees, carry or other charges), does the communication disclose the effect of those charges, or show net figures?",
+    "applies_to": "retail",
+    "fail_example": "Gross IRR of 22% since inception.",
+    "pass_example": "Gross IRR of 22% since inception; after management fees and carried interest the net IRR was 16%."
+  },
+  {
+    "id": "PERF-06",
+    "source": "FCA COBS 4.6.2R(5)",
+    "source_url": "https://www.handbook.fca.org.uk/handbook/COBS/4/6.html",
+    "rule_text": "(5) if the indication relies on figures denominated in a currency other than pounds sterling, the currency is clearly stated, together with a warning that the return may increase or decrease as a result of currency fluctuations;",
+    "test": "If performance is shown in a non-sterling currency, is the currency named and a currency-fluctuation warning given?",
+    "applies_to": "retail",
+    "fail_example": "Five-year return: 48%.",
+    "pass_example": "Five-year return to 30 June 2026: 48% in euros. The return may increase or decrease as a result of currency fluctuations."
+  },
+  {
+    "id": "PERF-07",
+    "source": "FCA COBS 4.6.6R",
+    "source_url": "https://www.handbook.fca.org.uk/handbook/COBS/4/6.html",
+    "rule_text": "A firm must ensure that information that contains an indication of simulated past performance of relevant business, a relevant investment or a financial index, satisfies the following conditions: (1) it relates to an investment or a financial index; (2) the simulated past performance is based on the actual past performance of one or more investments or financial indices which are the same as, substantially the same as, or underlie, the investment concerned; (3) in respect of the actual past performance referred to in (2), the conditions set out in paragraphs (1) to (3), (5) and (6) of the rule on past performance (COBS 4.6.2 R) are complied with; and (4) the information contains a prominent warning that the figures refer to simulated past performance and that past performance is not a reliable indicator of future performance.",
+    "test": "If the claim shows back-tested, modelled or 'would have returned' figures, are they based on the actual record of the same or substantially the same investments, and clearly labelled as simulated with the required warning?",
+    "applies_to": "retail",
+    "fail_example": "Our new strategy would have returned 19% a year since 2010.",
+    "pass_example": "Simulated returns based on the actual performance of the underlying index, 2021-2026, in GBP after charges. These figures refer to simulated past performance and past performance is not a reliable indicator of future performance."
+  },
+  {
+    "id": "PERF-08",
+    "source": "FCA COBS 4.6.7R(1)",
+    "source_url": "https://www.handbook.fca.org.uk/handbook/COBS/4/6.html",
+    "rule_text": "(1) A firm must ensure that information that contains an indication of future performance of relevant business, a relevant investment, a structured deposit or a financial index, satisfies the following conditions: (a) it is not based on and does not refer to simulated past performance; (b) it is based on reasonable assumptions supported by objective data; (c) where the indication is based on gross performance, the effect of commissions, fees or other charges is disclosed; (ca) it is based on performance scenarios in different market conditions (both negative and positive scenarios), and reflects the nature and risks of the specified types of investments included in the analysis; and (d) it contains a prominent warning that such forecasts are not a reliable indicator of future performance. (2) This rule only applies in relation to financial promotions that relate to a financial instrument (or a financial index that relates exclusively to financial instruments) or a structured deposit.",
+    "test": "For any forecast, projection or target return (e.g. 'target 12% net IRR'), is it based on reasonable, objectively supported assumptions, net of (or disclosing) fees, shown across positive and negative scenarios, not derived from simulated history, and accompanied by a prominent warning that forecasts are not a reliable indicator of future performance?",
+    "applies_to": "retail",
+    "fail_example": "Target 12% net IRR - our model makes it a near certainty.",
+    "pass_example": "Target 12% net IRR (after fees). In a downside scenario investors could lose money; in our base case 12%; upside 18%. Assumptions are set out on page 4. Forecasts are not a reliable indicator of future performance."
+  }
+]

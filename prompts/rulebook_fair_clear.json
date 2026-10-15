@@ -1,0 +1,82 @@
+[
+  {
+    "id": "FCN-01",
+    "source": "FCA COBS 4.2.1R(1) and (3)",
+    "source_url": "https://www.handbook.fca.org.uk/handbook/COBS/4/2.html",
+    "rule_text": "(1) A firm must ensure that a communication or a financial promotion is fair, clear and not misleading. ... (3) As part of complying with (1), a firm must take into account the nature of the client.",
+    "test": "Taken on its own, is the claim accurate, understandable and free of any impression the product or firm cannot back up, given who the audience is?",
+    "applies_to": "all",
+    "fail_example": "Our fund has never had a bad year and simply cannot go wrong.",
+    "pass_example": "Our fund aims for long-term growth; its value can fall as well as rise and you may get back less than you invest."
+  },
+  {
+    "id": "FCN-02",
+    "source": "FCA COBS 4.2.5G",
+    "source_url": "https://www.handbook.fca.org.uk/handbook/COBS/4/2.html",
+    "rule_text": "A communication or a financial promotion should not describe a feature of a product or service as “guaranteed”, “protected” or “secure”, or use a similar term unless: (1) that term is capable of being a fair, clear and not misleading description of it; and (2) the firm communicates all of the information necessary, and presents that information with sufficient clarity and prominence, to make the use of that term fair, clear and not misleading.",
+    "test": "Does the claim use 'guaranteed', 'protected', 'secure' or a similar term (e.g. 'capital protected', 'risk-free', 'safe') for a feature that is not actually guaranteed/protected, or without prominently stating who gives the guarantee, its limits and conditions?",
+    "applies_to": "all",
+    "fail_example": "A safe, risk-free way to grow your savings with capital protected returns.",
+    "pass_example": "Your capital is at risk. This investment is not covered by any guarantee and you could lose some or all of the money you invest."
+  },
+  {
+    "id": "FCN-03",
+    "source": "FCA COBS 4.2.4G(4)",
+    "source_url": "https://www.handbook.fca.org.uk/handbook/COBS/4/2.html",
+    "rule_text": "A firm should ensure that a financial promotion: ... (4) that names the FCA, PRA or both as its regulator and refers to matters not regulated by either the FCA, PRA or both makes clear that those matters are not regulated by the FCA, PRA or either;",
+    "test": "If the claim names the FCA/PRA as regulator, does it imply that an unregulated product or activity is regulated, without saying clearly which parts are not regulated?",
+    "applies_to": "all",
+    "fail_example": "We are authorised and regulated by the FCA, so our property bonds are fully regulated too.",
+    "pass_example": "We are authorised and regulated by the FCA. Our property bonds are not regulated by the FCA."
+  },
+  {
+    "id": "FCN-04",
+    "source": "FCA COBS 4.5A.16R",
+    "source_url": "https://www.handbook.fca.org.uk/handbook/COBS/4/5A.html",
+    "rule_text": "The information must not use the name of the FCA or PRA in such a way that would indicate or suggest endorsement or approval by the FCA or PRA of the products or services of the firm.",
+    "test": "Does the claim use the FCA or PRA name in a way that suggests the regulator endorses, approves or vouches for the product or service?",
+    "applies_to": "all",
+    "fail_example": "FCA-approved investment opportunity you can trust.",
+    "pass_example": "Issued by an FCA-authorised firm. Authorisation does not mean the FCA endorses this product."
+  },
+  {
+    "id": "FCN-05",
+    "source": "FCA COBS 4.5.2R(4)",
+    "source_url": "https://www.handbook.fca.org.uk/handbook/COBS/4/5.html",
+    "rule_text": "A firm must ensure that information: ... (4) does not disguise, diminish or obscure important items, statements or warnings.",
+    "test": "Is any important item, statement or warning hidden, played down, contradicted or made harder to notice (e.g. footnotes, tiny print, 'don't worry about the risks' framing)?",
+    "applies_to": "retail",
+    "fail_example": "Returns of up to 15%!* (*terms, risks and charges apply - see website).",
+    "pass_example": "Returns are not guaranteed and you could lose money. Charges of 2% a year apply and reduce your returns."
+  },
+  {
+    "id": "FCN-06",
+    "source": "FCA COBS 4.5.2R(3)",
+    "source_url": "https://www.handbook.fca.org.uk/handbook/COBS/4/5.html",
+    "rule_text": "A firm must ensure that information: ... (3) is sufficient for, and presented in a way that is likely to be understood by, the average member of the group to whom it is directed, or by whom it is likely to be received;",
+    "test": "Would an average member of the intended (or likely) audience understand the claim, including any jargon, and is it complete enough to be relied on?",
+    "applies_to": "retail",
+    "fail_example": "Access levered mezzanine tranches with a 2-and-20 carry waterfall and 8% hurdle.",
+    "pass_example": "This fund lends to private companies. It uses borrowing, which can increase losses as well as gains, and charges a yearly fee plus a share of any profits above 8%."
+  },
+  {
+    "id": "FCN-07",
+    "source": "FCA COBS 4.5.6R",
+    "source_url": "https://www.handbook.fca.org.uk/handbook/COBS/4/5.html",
+    "rule_text": "If information compares relevant business, relevant investments, or persons who carry on relevant business, a firm must ensure that the comparison is meaningful and presented in a fair and balanced way",
+    "test": "If the claim compares the product, service or firm with something else, is the comparison like-for-like and balanced rather than cherry-picked?",
+    "applies_to": "retail",
+    "fail_example": "Earn five times more than a bank savings account.",
+    "pass_example": "Unlike a bank savings account, this investment is not covered by deposit protection and its value can fall; it targets higher returns in exchange for that risk."
+  },
+  {
+    "id": "FCN-08",
+    "source": "FCA COBS 4.5A.7R(2)",
+    "source_url": "https://www.handbook.fca.org.uk/handbook/COBS/4/5A.html",
+    "rule_text": "(2) A firm must ensure that: (a) the comparison is meaningful and presented in a fair and balanced way; (b) the sources of the information used for the comparison are specified; and (c) the key facts and assumptions used to make the comparison are included.",
+    "test": "For any comparison of investment services, financial instruments or providers, are the data source and the key facts and assumptions behind the comparison stated?",
+    "applies_to": "all",
+    "fail_example": "Our fund beat the market by 4% a year.",
+    "pass_example": "Over the five years to 30 June 2026 our fund returned 7.1% a year after fees versus 5.0% a year for a broad UK equity index (source: index provider data, total return in GBP)."
+  }
+]

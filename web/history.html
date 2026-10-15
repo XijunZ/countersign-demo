@@ -1,0 +1,369 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Promotions register · Countersign</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,600&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<style>
+:root {
+  --paper: #eef2ef; --panel: #f9fbfa; --ink: #18221f; --muted: #5b6b66; --rule: #cfd8d4;
+  --bench: #1e4d3f; --prosecution: #9e2b25; --defence: #2c5a85; --judge: #8c6a1f;
+  --amber: #b7791f; --pass: #2f7a4b; --clerk: #55606b;
+  --serif: "Newsreader", Georgia, serif; --sans: "Public Sans", system-ui, sans-serif;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--paper); color: var(--ink); font: 15px/1.5 var(--sans); }
+button, input, textarea, select { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--bench); outline-offset: 2px; }
+a { color: var(--defence); }
+
+header { display: flex; align-items: center; gap: 24px; padding: 14px 24px; background: var(--bench); color: #fff; flex-wrap: wrap; }
+header h1 { margin: 0; font: 600 22px/1 var(--serif); letter-spacing: .01em; }
+header p { margin: 0; opacity: .8; font-size: 13px; }
+nav.top { display: flex; gap: 4px; margin-left: auto; }
+nav.top a { color: #fff; text-decoration: none; padding: 6px 12px; border-radius: 6px; font-size: 14px; font-weight: 500; opacity: .85; }
+nav.top a:hover { opacity: 1; background: rgba(255,255,255,.1); }
+nav.top a[aria-current="page"] { background: rgba(255,255,255,.18); opacity: 1; font-weight: 600; }
+
+main { padding: 20px 24px 48px; max-width: 1720px; margin: 0 auto; }
+section { min-width: 0; }
+h2 { font: 600 16px/1.3 var(--sans); margin: 0 0 12px; }
+h3 { font: 600 15px/1.3 var(--sans); margin: 24px 0 10px; }
+.hint { color: var(--muted); font-size: 13px; margin: 0 0 12px; }
+.btn { display: inline-block; padding: 8px 14px; border-radius: 6px; border: 1px solid var(--bench); background: var(--bench); color: #fff; font-weight: 600; cursor: pointer; text-decoration: none; font-size: 14px; }
+.btn.ghost { background: transparent; color: var(--bench); }
+.btn.small { padding: 3px 9px; font-size: 12.5px; font-weight: 500; }
+.row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; align-items: center; }
+.empty { color: var(--muted); font-size: 14px; border: 1px dashed var(--rule); border-radius: 6px; padding: 18px; }
+.tag { font-size: 11.5px; font-weight: 600; border: 1px solid var(--t); color: var(--t); border-radius: 3px; padding: 0 6px; white-space: nowrap; }
+
+/* Register */
+.reghead { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; flex-wrap: wrap; margin-bottom: 14px; }
+.reghead h2 { font: 600 26px/1.2 var(--serif); margin: 0 0 4px; }
+.reghead p { margin: 0; color: var(--muted); font-size: 13.5px; max-width: 780px; }
+.filters { display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-end; margin-bottom: 12px; }
+.filters label { display: flex; flex-direction: column; gap: 3px; font-size: 12px; font-weight: 600; color: var(--muted); }
+.filters input, .filters select { padding: 7px 9px; border: 1px solid var(--rule); border-radius: 6px; background: #fff; font-size: 14px; color: var(--ink); font-weight: 400; }
+.filters input { width: 280px; max-width: 100%; }
+.filters .count { margin-left: auto; font-size: 13px; color: var(--muted); align-self: center; }
+.tablewrap { overflow-x: auto; border: 1px solid var(--rule); border-radius: 8px; background: var(--panel); }
+table.reg { width: 100%; border-collapse: collapse; font-size: 13px; }
+table.reg th { text-align: left; font-size: 11.5px; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); font-weight: 700; padding: 9px 10px; border-bottom: 1px solid var(--rule); background: #f1f5f3; white-space: nowrap; }
+table.reg td { padding: 10px; border-bottom: 1px solid var(--rule); vertical-align: top; }
+table.reg tbody tr { cursor: pointer; }
+table.reg tbody tr:hover { background: #fff; }
+table.reg tbody tr[aria-selected="true"] { background: #fff; box-shadow: inset 4px 0 0 var(--bench); }
+table.reg tbody tr:last-child td { border-bottom: 0; }
+.ref { font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; color: var(--bench); }
+.mat b { display: block; font-weight: 600; max-width: 280px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+td small { color: var(--muted); font-size: 12px; display: block; }
+.num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+.nowrap { white-space: nowrap; }
+.risk { display: inline-block; min-width: 68px; text-align: center; font-size: 12px; font-weight: 700; color: #fff; border-radius: 4px; padding: 3px 8px; letter-spacing: .02em; }
+.risk.high { background: var(--prosecution); } .risk.medium { background: var(--amber); } .risk.low { background: var(--pass); }
+.status { display: inline-flex; align-items: center; gap: 6px; font-weight: 600; white-space: nowrap; color: var(--t); }
+.status::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--t); flex: none; }
+.overdue { color: var(--prosecution); font-weight: 600; }
+.rv { font: 12px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace; color: var(--muted); white-space: nowrap; }
+#detail-wrap { margin-top: 22px; border: 1px solid var(--rule); border-radius: 8px; background: #fbfcfb; padding: 18px 20px; }
+
+.head { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; flex-wrap: wrap; }
+.head h2 { font: 600 22px/1.25 var(--serif); margin: 0 0 4px; word-break: break-word; }
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 10px; margin: 16px 0; }
+.stat { background: var(--panel); border: 1px solid var(--rule); border-radius: 6px; padding: 10px 12px; }
+.stat b { display: block; font: 600 20px/1.1 var(--sans); font-variant-numeric: tabular-nums; }
+.stat span { font-size: 12px; color: var(--muted); }
+.settings { font-size: 13px; color: var(--muted); }
+.settings b { color: var(--ink); font-weight: 600; }
+.downloads { border: 1px solid var(--rule); border-radius: 6px; background: var(--panel); padding: 12px; }
+
+.timeline { list-style: none; margin: 0; padding: 0 0 0 18px; border-left: 2px solid var(--rule); }
+.timeline li { position: relative; margin: 0 0 14px; padding-left: 8px; }
+.timeline li::before { content: ""; position: absolute; left: -26px; top: 5px; width: 12px; height: 12px; border-radius: 50%; background: var(--k); border: 2px solid var(--paper); }
+.timeline .top { display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; font-size: 13px; }
+.timeline .vn { font-weight: 700; color: var(--k); font-variant-numeric: tabular-nums; }
+.timeline .lbl { font-weight: 600; }
+.timeline small { color: var(--muted); }
+.change { margin-top: 6px; font: 15px/1.5 var(--serif); background: var(--panel); border: 1px solid var(--rule); border-radius: 6px; padding: 8px 10px; }
+.change del { color: var(--prosecution); background: #f7e1df; text-decoration-thickness: 1px; }
+.change ins { color: var(--pass); background: #e3f0e7; text-decoration: none; }
+.full { margin-top: 6px; white-space: pre-wrap; font: 14px/1.6 var(--serif); background: #fff; border: 1px solid var(--rule); border-radius: 6px; padding: 12px; max-height: 50vh; overflow: auto; }
+
+.items { list-style: none; margin: 0; padding: 0; }
+.items li { background: var(--panel); border: 1px solid var(--rule); border-left: 4px solid var(--c, var(--rule)); border-radius: 6px; padding: 9px 12px; margin-bottom: 8px; font-size: 13px; }
+.items q { font: 14.5px/1.5 var(--serif); display: block; margin: 4px 0; quotes: "\201C" "\201D"; }
+.items .final { font: 14.5px/1.5 var(--serif); background: #e3f0e7; padding: 4px 8px; border-radius: 4px; margin-top: 4px; }
+.items .meta { color: var(--muted); font-size: 12px; }
+.cols { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+
+@media (max-width: 1100px) { .cols { grid-template-columns: 1fr; } }
+@media (max-width: 860px) { nav.top { margin-left: 0; } .filters .count { margin-left: 0; } }
+@media (max-width: 600px) { header, main { padding-left: 16px; padding-right: 16px; } .filters label { flex: 1 1 140px; } .filters input { width: 100%; } #detail-wrap { padding: 14px; } }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>Countersign</h1>
+    <p>The record of every financial promotion: how it was reviewed, who released it, and when it is due for review.</p>
+  </div>
+  <nav class="top" aria-label="Main">
+    <a href="/">Review</a>
+    <a href="web/rulebooks.html">Rulebooks</a>
+    <a href="web/history.html" aria-current="page">Register</a>
+  </nav>
+</header>
+<main>
+  <section aria-labelledby="h-reg">
+    <div class="reghead"><div>
+      <h2 id="h-reg">Promotions register</h2>
+      <p>Firms must keep a record of the financial promotions they communicate or approve. Each row is one piece of material, with the rule versions it was checked against and the person who released it. Select a row to see its full record.</p>
+    </div>
+    <button class="btn ghost" id="csv" type="button">Export CSV</button></div>
+    <div class="filters" role="search">
+      <label>Search<input type="search" id="q" placeholder="Ref, file, market, person" autocomplete="off"></label>
+      <label>Status<select id="f-status"><option value="">All statuses</option><option>In review</option><option>Needs decision</option><option>Released</option><option>Returned</option><option>Completed</option><option>Failed</option></select></label>
+      <label>Highest risk<select id="f-risk"><option value="">Any risk</option><option value="high">High</option><option value="medium">Medium</option><option value="low">Low</option><option value="none">Not rated</option></select></label>
+      <label>Market<select id="f-market"><option value="">All markets</option></select></label>
+      <span class="count" id="count" aria-live="polite"></span>
+    </div>
+    <div class="tablewrap"><table class="reg">
+      <thead><tr><th scope="col">Ref</th><th scope="col">Material</th><th scope="col">Markets</th><th scope="col">Audience</th><th scope="col">Highest risk</th><th scope="col">Status</th><th scope="col">Released by</th><th scope="col">Review due</th><th scope="col">Rule versions</th><th scope="col" style="text-align:right">Cost</th></tr></thead>
+      <tbody id="rows"><tr><td colspan="10" class="hint" style="padding:16px">Loading…</td></tr></tbody>
+    </table></div>
+  </section>
+  <section id="detail-wrap" aria-live="polite" hidden>
+    <div id="detail"></div>
+  </section>
+</main>
+
+<script>
+const CFG = window.COURTROOM || {};
+const sb = supabase.createClient(CFG.SUPABASE_URL, CFG.SUPABASE_ANON_KEY);
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const when = (t) => t ? new Date(t).toLocaleString(undefined, { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" }) : "";
+const day = (t) => t ? new Date(t).toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" }) : "";
+
+const STATUS = { queued: ["Queued", "var(--clerk)"], running: ["Running", "var(--defence)"], needs_review: ["Needs review", "var(--amber)"], done: ["Done", "var(--bench)"], failed: ["Failed", "var(--prosecution)"] };
+const APPROVAL = { approved: ["Approved", "var(--pass)"], returned: ["Returned", "var(--amber)"] };
+const KIND = { original: ["Original", "var(--clerk)"], agent: ["Agent", "var(--defence)"], human: ["Reviewer", "var(--judge)"], snapshot: ["Snapshot", "var(--bench)"] };
+const REG_STATUS = { "In review": "var(--defence)", "Needs decision": "var(--amber)", Released: "var(--pass)", Returned: "var(--prosecution)", Completed: "var(--bench)", Failed: "var(--prosecution)" };
+const RISK_RANK = { low: 1, medium: 2, high: 3 };
+const RISK_LABEL = { high: "High", medium: "Medium", low: "Low" };
+let jobs = [], riskByJob = {}, refById = {}, selected = null, visible = [];
+try { selected = new URLSearchParams(location.search).get("job"); } catch (e) {}
+
+function tagFor(job) {
+  const [l, c] = APPROVAL[job.approval_status] || STATUS[job.status] || [job.status || "Unknown", "var(--clerk)"];
+  return { l, c };
+}
+function regStatus(j) {
+  if (j.approval_status === "approved") return "Released";
+  if (j.approval_status === "returned") return "Returned";
+  if (j.status === "queued" || j.status === "running") return "In review";
+  if (j.status === "needs_review") return "Needs decision";
+  if (j.status === "failed") return "Failed";
+  return "Completed";
+}
+const listOf = (v) => Array.isArray(v) ? v.filter(Boolean).map(String) : (v ? [String(v)] : []);
+function computeRefs() {
+  refById = {};
+  [...jobs].sort((a, b) => new Date(a.created_at) - new Date(b.created_at))
+    .forEach((j, i) => { refById[j.id] = j.ref_no || ("CS-2026-" + String(i + 1).padStart(4, "0")); });
+}
+function reviewDue(j) {
+  if (j.review_due) return new Date(j.review_due + (String(j.review_due).length <= 10 ? "T00:00:00" : ""));
+  if (!j.approved_at || j.approval_status !== "approved") return null;
+  const d = new Date(j.approved_at); d.setMonth(d.getMonth() + 12); return d;
+}
+function rulesList(rv) {
+  if (!rv || typeof rv !== "object") return [];
+  return Object.entries(rv).map(([k, v]) => {
+    const h = typeof v === "object" && v ? (v.hash || v.version || JSON.stringify(v)) : v;
+    return k + " " + String(h ?? "").slice(0, 4) + "…";
+  });
+}
+function rowData(j) {
+  const s = j.settings || {}, t = j.totals || {}, due = reviewDue(j);
+  return {
+    id: j.id, ref: refById[j.id], file: j.file_name || "Untitled", channel: s.channel || "",
+    markets: listOf(s.markets), audience: s.audience || "", risk: riskByJob[j.id] || "",
+    status: regStatus(j), releasedBy: j.approval_status === "approved" ? (j.approved_by || "") : "",
+    releasedAt: j.approval_status === "approved" ? j.approved_at : null,
+    due, rules: rulesList(j.rules_version), cost: t.cost_usd != null ? Number(t.cost_usd) : null, created: j.created_at,
+  };
+}
+
+function populateMarkets() {
+  const sel = $("f-market"), cur = sel.value;
+  const all = [...new Set(jobs.flatMap((j) => listOf((j.settings || {}).markets)))].sort();
+  sel.innerHTML = `<option value="">All markets</option>` + all.map((m) => `<option${m === cur ? " selected" : ""}>${esc(m)}</option>`).join("");
+}
+function renderList() {
+  const q = $("q").value.trim().toLowerCase(), fs = $("f-status").value, fr = $("f-risk").value, fm = $("f-market").value;
+  visible = jobs.map(rowData).filter((r) => {
+    if (fs && r.status !== fs) return false;
+    if (fr && (fr === "none" ? r.risk : r.risk !== fr)) return false;
+    if (fm && !r.markets.includes(fm)) return false;
+    if (q && ![r.ref, r.file, r.channel, r.audience, r.releasedBy, r.status, ...r.markets].join(" ").toLowerCase().includes(q)) return false;
+    return true;
+  });
+  $("count").textContent = `${visible.length} of ${jobs.length} ${jobs.length === 1 ? "entry" : "entries"}`;
+  if (!visible.length) {
+    $("rows").innerHTML = `<tr><td colspan="10" style="padding:16px"><p class="empty" style="margin:0">${jobs.length ? "No entries match these filters." : "Nothing on the register yet. Start a review from the Review page."}</p></td></tr>`;
+    return;
+  }
+  const now = new Date();
+  $("rows").innerHTML = visible.map((r) => {
+    const overdue = r.due && r.due < now && r.status === "Released";
+    return `<tr data-id="${esc(r.id)}" tabindex="0" aria-selected="${r.id === selected}">
+      <td class="ref">${esc(r.ref)}</td>
+      <td class="mat"><b title="${esc(r.file)}">${esc(r.file)}</b><small>${esc(r.channel || "Channel not set")} · ${day(r.created)}</small></td>
+      <td>${esc(r.markets.join(", ") || "-")}</td>
+      <td>${esc(r.audience || "-")}</td>
+      <td>${r.risk ? `<span class="risk ${r.risk}">${RISK_LABEL[r.risk]}</span>` : `<span class="hint">-</span>`}</td>
+      <td><span class="status" style="--t:${REG_STATUS[r.status] || "var(--clerk)"}">${esc(r.status)}</span></td>
+      <td>${r.releasedBy || r.releasedAt ? `${esc(r.releasedBy || "Unknown")}<small>${day(r.releasedAt)}</small>` : `<span class="hint">-</span>`}</td>
+      <td class="nowrap${overdue ? " overdue" : ""}">${r.due ? day(r.due) + (overdue ? "<small>Overdue</small>" : "") : `<span class="hint">-</span>`}</td>
+      <td class="rv">${r.rules.length ? `<span title="${esc(r.rules.join("\n"))}">${r.rules.slice(0, 2).map(esc).join("<br>")}${r.rules.length > 2 ? ` <span style="color:var(--defence)">+${r.rules.length - 2}</span>` : ""}</span>` : "-"}</td>
+      <td class="num" style="text-align:right">${r.cost != null ? "$" + r.cost.toFixed(3) : "-"}</td></tr>`;
+  }).join("");
+}
+["q", "f-status", "f-risk", "f-market"].forEach((id) => $(id).addEventListener("input", renderList));
+
+function choose(id) {
+  selected = id; renderList(); loadDetail(selected);
+  try { history.replaceState(null, "", "?job=" + encodeURIComponent(selected)); } catch (err) {}
+}
+$("rows").addEventListener("click", (e) => {
+  if (e.target.closest("a")) return;
+  const tr = e.target.closest("tr[data-id]"); if (tr) choose(tr.dataset.id);
+});
+$("rows").addEventListener("keydown", (e) => {
+  if (e.key !== "Enter" && e.key !== " ") return;
+  const tr = e.target.closest("tr[data-id]"); if (tr) { e.preventDefault(); choose(tr.dataset.id); }
+});
+
+$("csv").addEventListener("click", () => {
+  const cell = (v) => { const s = String(v ?? ""); return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; };
+  const iso = (d) => d ? new Date(d).toISOString().slice(0, 10) : "";
+  const head = ["Ref", "Material", "Channel", "Markets", "Audience", "Highest risk", "Status", "Released by", "Released on", "Review due", "Rule versions", "Cost (USD)", "Created", "Job ID"];
+  const lines = [head.join(",")].concat(visible.map((r) => [r.ref, r.file, r.channel, r.markets.join("; "), r.audience, RISK_LABEL[r.risk] || "", r.status, r.releasedBy, iso(r.releasedAt), iso(r.due),
+    Object.entries((jobs.find((j) => j.id === r.id) || {}).rules_version || {}).map(([k, v]) => k + " " + (typeof v === "object" ? JSON.stringify(v) : v)).join("; "),
+    r.cost != null ? r.cost.toFixed(4) : "", iso(r.created), r.id].map(cell).join(",")));
+  const blob = new Blob(["﻿" + lines.join("\r\n")], { type: "text/csv;charset=utf-8" });
+  const a = document.createElement("a"); a.href = URL.createObjectURL(blob);
+  a.download = `promotions-register-${new Date().toISOString().slice(0, 10)}.csv`;
+  document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+});
+
+async function loadJobs() {
+  const [jr, fr] = await Promise.all([
+    sb.from("jobs").select("id,file_name,created_at,status,approval_status,approved_by,approved_at,totals,settings,exports,ref_no,review_due,rules_version").order("created_at", { ascending: false }).limit(1000),
+    sb.from("findings").select("job_id,risk").not("risk", "is", null).limit(10000),
+  ]);
+  if (jr.error) { $("rows").innerHTML = `<tr><td colspan="10" style="padding:16px"><p class="empty" style="margin:0">Could not load the register: ${esc(jr.error.message)}</p></td></tr>`; return; }
+  jobs = jr.data || [];
+  riskByJob = {};
+  (fr.data || []).forEach(({ job_id, risk }) => {
+    const r = String(risk || "").toLowerCase(); if (!RISK_RANK[r]) return;
+    if ((RISK_RANK[riskByJob[job_id]] || 0) < RISK_RANK[r]) riskByJob[job_id] = r;
+  });
+  computeRefs(); populateMarkets(); renderList();
+  if (selected && jobs.some((j) => j.id === selected)) loadDetail(selected);
+}
+
+async function loadDetail(id) {
+  const job = jobs.find((j) => j.id === id); if (!job) return;
+  const wrap = $("detail-wrap"), first = wrap.hidden;
+  wrap.hidden = false;
+  $("detail").innerHTML = `<p class="hint">Loading the record…</p>`;
+  if (first || !wrap.contains(document.activeElement)) wrap.scrollIntoView({ block: "start", behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+  const [v, f, d] = await Promise.all([
+    sb.from("doc_versions").select("*").eq("job_id", id).order("version"),
+    sb.from("feedback").select("*").eq("job_id", id).order("created_at"),
+    sb.from("decisions").select("*").eq("job_id", id).order("decided_at"),
+  ]);
+  if (selected !== id) return;
+  renderDetail(job, v.data || [], f.data || [], d.data || []);
+}
+
+function renderDetail(job, versions, feedback, decisions) {
+  const t = job.totals || {}, s = job.settings || {}, tag = tagFor(job), x = job.exports || {};
+  const markets = Array.isArray(s.markets) ? s.markets.join(", ") : (s.markets || "");
+  const stats = [
+    [t.claims ?? 0, "claims"], [t.pass ?? 0, "pass"], [t.fix ?? 0, "fix"], [t.escalate ?? 0, "escalate"],
+    [t.cost_usd != null ? "$" + Number(t.cost_usd).toFixed(3) : "n/a", "cost"],
+    [t.seconds != null ? Math.round(t.seconds) + "s" : "n/a", "time"], [t.calls ?? "n/a", "model calls"],
+  ];
+  const dl = x.status === "ready"
+    ? `<div class="downloads"><b>Approved copy</b><div class="row">${x.approved_pdf ? `<a class="btn" href="${esc(x.approved_pdf)}">Approved copy (PDF)</a>` : ""}${x.redline_pdf ? `<a class="btn ghost" href="${esc(x.redline_pdf)}">Redline (PDF)</a>` : ""}${x.email_draft ? `<a class="btn ghost" href="${esc(x.email_draft)}">Email draft (.eml)</a>` : ""}</div><p class="hint" style="margin:8px 0 0">Links expire 24 hours after they were made. Reopen the review to refresh them.</p></div>`
+    : x.status ? `<p class="hint">Exports: ${esc(x.status)}.</p>` : "";
+
+  $("detail").innerHTML = `
+    <div class="head"><div>
+      <p class="hint" style="margin:0 0 2px;font-weight:700;color:var(--bench)">${esc(refById[job.id] || "")}</p>
+      <h2>${esc(job.file_name || "Untitled")}</h2>
+      <div class="row" style="margin-top:4px"><span class="tag" style="--t:${tag.c}">${esc(tag.l)}</span><span class="hint" style="margin:0">Reviewed ${when(job.created_at)}${job.approved_by ? ` · signed off by ${esc(job.approved_by)} ${when(job.approved_at)}` : ""}</span></div>
+      <p class="settings" style="margin-top:8px">${markets ? `Markets: <b>${esc(markets)}</b> · ` : ""}${s.audience ? `Audience: <b>${esc(s.audience)}</b> · ` : ""}${s.issuer_regulator ? `Issuer regulator: <b>${esc(s.issuer_regulator)}</b>` : ""}</p>
+    </div>
+    <div class="row" style="margin-top:0"><a class="btn" href="/?job=${encodeURIComponent(job.id)}">Open review</a></div></div>
+    <div class="stats">${stats.map(([b, l]) => `<div class="stat"><b>${esc(b)}</b><span>${l}</span></div>`).join("")}</div>
+    ${dl}
+    <h3>Versions</h3>
+    ${versions.length ? `<ol class="timeline">${versions.map(versionHtml).join("")}</ol>` : `<p class="empty">No document versions recorded for this review.</p>`}
+    <div class="cols">
+      <div><h3>Feedback</h3>${feedback.length ? `<ul class="items">${feedback.map(feedbackHtml).join("")}</ul>` : `<p class="empty">No feedback left on this review.</p>`}</div>
+      <div><h3>Human decisions</h3>${decisions.length ? `<ul class="items">${decisions.map(decisionHtml).join("")}</ul>` : `<p class="empty">No claim-level decisions recorded.</p>`}</div>
+    </div>`;
+}
+function versionHtml(v) {
+  const [kl, kc] = KIND[v.kind] || [v.kind || "Change", "var(--clerk)"];
+  const isFull = (v.kind === "original" || v.kind === "snapshot") && v.full_text;
+  const diff = (v.old_text || v.new_text) && !isFull
+    ? `<div class="change">${v.old_text ? `<del>${esc(v.old_text)}</del>` : ""}${v.old_text && v.new_text ? " " : ""}${v.new_text ? `<ins>${esc(v.new_text)}</ins>` : ""}</div>` : "";
+  return `<li style="--k:${kc}"><div class="top"><span class="vn">v${esc(v.version)}</span><span class="tag" style="--t:${kc}">${esc(kl)}</span>
+    <span class="lbl">${esc(v.label || "")}</span><small>${esc(v.created_by || "")}${v.created_by ? " · " : ""}${when(v.created_at)}</small></div>
+    ${diff}
+    ${isFull ? `<div class="row" style="margin-top:6px"><button class="btn ghost small" data-full aria-expanded="false">View full text</button></div><div class="full" hidden>${esc(v.full_text)}</div>` : ""}</li>`;
+}
+function feedbackHtml(f) {
+  const agree = f.rating === "agree";
+  return `<li style="--c:${agree ? "var(--pass)" : "var(--prosecution)"}">
+    <div class="meta">${esc(f.role === "marketing" ? "Marketing" : f.role === "compliance" ? "Compliance" : "Reviewer")}${f.created_by ? " · " + esc(f.created_by) : ""} · ${when(f.created_at)}</div>
+    <div><b>${agree ? "Agreed" : "Disagreed"}</b> with ${esc(f.verdict || "the ruling")}${f.rule_id ? ` under ${esc(f.rule_id)}` : ""}${f.contest ? " and asked the agents to reconsider" : ""}</div>
+    ${f.claim ? `<q>${esc(f.claim)}</q>` : ""}${f.comment ? `<div>${esc(f.comment)}</div>` : ""}</li>`;
+}
+function decisionHtml(d) {
+  const label = { accept: "Accepted the agent's rewrite", edit: "Edited the wording", keep: "Kept the original" }[d.decision] || d.decision;
+  const c = { accept: "var(--pass)", edit: "var(--judge)", keep: "var(--clerk)" }[d.decision] || "var(--rule)";
+  return `<li style="--c:${c}"><div class="meta">${esc(d.decided_by || "Reviewer")} · ${when(d.decided_at)}</div>
+    <div><b>${esc(label)}</b></div>${d.claim ? `<q>${esc(d.claim)}</q>` : ""}${d.final_text && d.decision !== "keep" ? `<div class="final">${esc(d.final_text)}</div>` : ""}</li>`;
+}
+$("detail").addEventListener("click", (e) => {
+  const b = e.target.closest("button[data-full]"); if (!b) return;
+  const box = b.parentElement.nextElementSibling; const open = box.hidden;
+  box.hidden = !open; b.setAttribute("aria-expanded", String(open)); b.textContent = open ? "Hide full text" : "View full text";
+});
+
+sb.channel("register-page").on("postgres_changes", { event: "*", schema: "public", table: "jobs" }, ({ new: j }) => {
+  if (!j || !j.id) return;
+  const i = jobs.findIndex((x) => x.id === j.id);
+  if (i >= 0) jobs[i] = { ...jobs[i], ...j }; else jobs.unshift(j);
+  computeRefs(); populateMarkets(); renderList();
+}).on("postgres_changes", { event: "INSERT", schema: "public", table: "findings" }, ({ new: f }) => {
+  const r = String((f && f.risk) || "").toLowerCase(); if (!RISK_RANK[r]) return;
+  if ((RISK_RANK[riskByJob[f.job_id]] || 0) < RISK_RANK[r]) { riskByJob[f.job_id] = r; renderList(); }
+}).subscribe();
+
+loadJobs();
+</script>
+</body>
+</html>

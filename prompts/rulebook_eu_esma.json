@@ -1,0 +1,82 @@
+[
+  {
+    "id": "EU-01",
+    "source": "Regulation (EU) 2019/1156 Art 4(1); ESMA34-45-1272 paras 6 and 8. Applied in Germany by BaFin for funds marketed there (ESMA guidelines are comply-or-explain for national authorities).",
+    "source_url": "https://www.esma.europa.eu/sites/default/files/library/esma34-45-1272_guidelines_on_marketing_communications.pdf",
+    "rule_text": "AIFMs, EuVECA managers, EuSEF managers and UCITS management companies shall ensure that all marketing communications addressed to investors are identifiable as such ... The requirement for marketing communications to be identifiable as such should imply that all marketing communications include sufficient information to make it clear that the communication has a purely marketing purpose, is not a contractually binding document or an information document required by any legislative provision, and is not sufficient to take an investment decision. In this context, a marketing communication should be deemed to be identified as such when it includes a prominent disclosure of the terms \"marketing communication\" ... the words \"Marketing Communication\" in the case of a banner or short videos lasting only a few seconds on a website or the word \"#MarketingCommunication\" for social media platforms.",
+    "test": "Is the piece clearly labelled as a marketing communication (e.g. 'Marketing communication' or '#MarketingCommunication' on social), and does it avoid presenting itself as advice, a binding document or enough to base an investment decision on?",
+    "applies_to": "all",
+    "fail_example": "Everything you need to know before investing in the Alpenblick Global Equity Fund - read this and decide today.",
+    "pass_example": "Marketing communication. Please refer to the prospectus and KID of the Alpenblick Global Equity Fund before making any final investment decision."
+  },
+  {
+    "id": "EU-02",
+    "source": "Regulation (EU) 2019/1156 Art 4(1); ESMA34-45-1272 paras 13-15. Applied in Germany by BaFin for funds marketed there (ESMA guidelines are comply-or-explain for national authorities).",
+    "source_url": "https://eur-lex.europa.eu/eli/reg/2019/1156/oj",
+    "rule_text": "describe the risks and rewards of purchasing units or shares of an AIF or units of a UCITS in an equally prominent manner ... Information on risks should not be disclosed in a footnote or in small characters within the main body of the communication. ... Marketing communications should not refer to the rewards without referring to the risks. In particular, a marketing communication should not describe only the rewards and refer to another document for the description of the risks. 15. Both the risks and rewards should be mentioned either at the same level or one immediately after the other.",
+    "test": "Where the copy mentions a benefit or return, are the relevant risks stated at the same level (same font size, same place or immediately after), not pushed into a footnote, small print or another document?",
+    "applies_to": "all",
+    "fail_example": "Target income of 6% a year from a diversified bond portfolio!* (*Risks: see prospectus.)",
+    "pass_example": "Target income of 6% a year from a diversified bond portfolio. Risk: income is not guaranteed and the value of your investment can fall; you may get back less than you invest."
+  },
+  {
+    "id": "EU-03",
+    "source": "Regulation (EU) 2019/1156 Art 4(1); ESMA34-45-1272 para 32. Applied in Germany by BaFin for funds marketed there (ESMA guidelines are comply-or-explain for national authorities).",
+    "source_url": "https://www.esma.europa.eu/sites/default/files/library/esma34-45-1272_guidelines_on_marketing_communications.pdf",
+    "rule_text": "all information included in marketing communications is fair, clear and not misleading ... All statements embedded in the marketing communication should be adequately justified based on objective and verifiable sources, which should be quoted. In addition, the communication should refrain from using overoptimistic wording, such as \"the best fund\" or \"the best manager\", wording that would diminish the risks, such as \"safe investment\" or \"effortless returns\", or wording that may imply high returns, without clearly explaining that such high returns may not be reached and that there is a risk of losing all or part of the investment.",
+    "test": "Does the copy use superlatives ('best fund'), risk-minimising words ('safe', 'effortless') or imply high returns without stating they may not be reached and capital can be lost, or make claims without a quoted objective source?",
+    "applies_to": "all",
+    "fail_example": "The best fund in Europe: a safe investment with effortless double-digit returns.",
+    "pass_example": "Rated 4 stars by an independent research provider (source and period stated below). Returns are not guaranteed and you could lose all or part of your investment."
+  },
+  {
+    "id": "EU-04",
+    "source": "ESMA34-45-1272 paras 44 and 47 (past performance). Applied in Germany by BaFin for funds marketed there (ESMA guidelines are comply-or-explain for national authorities).",
+    "source_url": "https://www.esma.europa.eu/sites/default/files/library/esma34-45-1272_guidelines_on_marketing_communications.pdf",
+    "rule_text": "Information on past performance, including simulated past performance, should not be the main information of the marketing communication. It should be based on historical data. It should mention the reference period chosen for measuring the performance and the source of the data. ... In every case past performance information should be based on complete 12-months periods ... When information on past performance is presented, this information should be preceded by the following statement: \"Past performance does not predict future returns\".",
+    "test": "If past performance appears, is it secondary to the main message, based on complete 12-month periods, with reference period and data source stated, and preceded by 'Past performance does not predict future returns'?",
+    "applies_to": "retail",
+    "fail_example": "Up 38% since March! Join the fund that keeps beating the market.",
+    "pass_example": "Past performance does not predict future returns. Annual returns 2021-2025 (complete calendar years, net of fees; source: fund administrator): see table."
+  },
+  {
+    "id": "EU-05",
+    "source": "ESMA34-45-1272 paras 52, 54, 56-57 (expected future performance). Applied in Germany by BaFin for funds marketed there (ESMA guidelines are comply-or-explain for national authorities).",
+    "source_url": "https://www.esma.europa.eu/sites/default/files/library/esma34-45-1272_guidelines_on_marketing_communications.pdf",
+    "rule_text": "Expected future performance should be based on reasonable assumptions supported by objective data. ... Expected future performance should be disclosed on a time horizon which is consistent with the recommended investment horizon of the fund. ... Marketing communications should also include at least a disclaimer according to which future performance is subject to taxation which depends on the personal situation of each investor and which may change in the future. 57. The information on expected future performance should include a statement according to which investment may lead to a financial loss if no guarantee on the capital is in place.",
+    "test": "If the copy states expected or target future returns, are they backed by stated reasonable assumptions, shown over the fund's recommended holding period, and accompanied by a taxation disclaimer and a warning that the investment may lead to a loss?",
+    "applies_to": "retail",
+    "fail_example": "Expect 12% a year - your money could double in six years.",
+    "pass_example": "Scenario: the fund targets 5% a year over its recommended 7-year holding period, based on the assumptions in the KID. This is not guaranteed; you may lose money. Future performance is subject to taxation, which depends on your personal situation and may change."
+  },
+  {
+    "id": "EU-06",
+    "source": "ESMA34-45-1272 paras 60-61 (sustainability-related aspects). Applied in Germany by BaFin for funds marketed there (ESMA guidelines are comply-or-explain for national authorities).",
+    "source_url": "https://www.esma.europa.eu/sites/default/files/library/esma34-45-1272_guidelines_on_marketing_communications.pdf",
+    "rule_text": "The information should be consistent with the information included in the legal and regulatory documents of the promoted fund. A link to the website where information on sustainability-related aspects is provided pursuant to Regulation (EU) 2019/2088 in relation to the promoted fund should be included in the marketing communication, where relevant given the nature of the marketing communication. 61. Information on the sustainability-related aspects of the promoted fund should not outweigh the extent to which the investment strategy of the product integrates sustainability-related characteristics or objectives.",
+    "test": "Do green/ESG/sustainable claims go further than the fund's legal documents support (e.g. 'fully green' for a fund that only promotes some ESG characteristics), and is there a link to the SFDR sustainability disclosures where relevant?",
+    "applies_to": "all",
+    "fail_example": "Invest 100% green: every euro in this fund saves the planet.",
+    "pass_example": "The fund promotes environmental characteristics as described in its prospectus; it does not have sustainable investment as its objective. See our SFDR website disclosures for details."
+  },
+  {
+    "id": "EU-07",
+    "source": "Regulation (EU) 2019/1156 Art 4(2); ESMA34-45-1272 para 20. Applied in Germany by BaFin for funds marketed there (ESMA guidelines are comply-or-explain for national authorities).",
+    "source_url": "https://eur-lex.europa.eu/eli/reg/2019/1156/oj",
+    "rule_text": "UCITS management companies shall ensure that marketing communications that contain specific information about a UCITS do not contradict or diminish the significance of the information contained in the prospectus ... However, the wording or the presentation used in the marketing communication should not be inconsistent with, add to, diminish or contradict any information mentioned in the legal or regulatory documents of the promoted fund.",
+    "test": "Does any claim about strategy, risk level, holding period, costs or performance contradict, downplay or add to what the prospectus/KID says (e.g. a lower risk class or shorter holding period than the KID)?",
+    "applies_to": "all",
+    "fail_example": "Low-risk fund, ideal for short-term savings (KID: risk class 5 of 7, recommended holding period 5 years).",
+    "pass_example": "Risk class 5 of 7 per the KID; recommended holding period 5 years. See the prospectus and KID for full details."
+  },
+  {
+    "id": "EU-08",
+    "source": "ESMA34-45-1272 para 30 (reference to the regulator). Applied in Germany by BaFin for funds marketed there (ESMA guidelines are comply-or-explain for national authorities).",
+    "source_url": "https://www.esma.europa.eu/sites/default/files/library/esma34-45-1272_guidelines_on_marketing_communications.pdf",
+    "rule_text": "Marketing communications should refrain from referring to the name of the national competent authority in a manner that would imply any endorsement or approval of the units or shares which are promoted in the communication by the authority. In particular, a visa or marketing authorisation granted by a national competent authority may be referred to in a marketing communication, but it should not be used as a sales argument.",
+    "test": "Does the copy use the regulator's name or authorisation (e.g. BaFin, CSSF) as a selling point or imply the regulator endorses the fund?",
+    "applies_to": "all",
+    "fail_example": "BaFin-approved and therefore a safe choice for your savings.",
+    "pass_example": "The fund is authorised for marketing in Germany. Authorisation is not an endorsement of the fund by the regulator."
+  }
+]

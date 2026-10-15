@@ -1,0 +1,82 @@
+[
+  {
+    "id": "AUD-01",
+    "source": "FSMA 2000 s21(1), (2) and (2A)",
+    "source_url": "https://www.legislation.gov.uk/ukpga/2000/8/section/21",
+    "rule_text": "(1) A person (“A”) must not, in the course of business, communicate an invitation or inducement to (a) engage in investment activity ... (2) But subsection (1) does not apply if— (a) A is an authorised person; or (b) the content of the communication is approved for the purposes of this section by an authorised person. (2A) The content of a communication may be approved for the purposes of this section by an authorised person only if the giving of the approval— (a) is permitted under section 55NA (which enables approval to be given with FCA permission), or (b) falls within an exemption conferred by regulations under section 55NB.",
+    "test": "Is it clear who is communicating the promotion? If the communicator is not an FCA-authorised firm, does the promotion show that its content was approved by an authorised person (or does it clearly rely on and meet the conditions of an FPO exemption, see AUD-05 to AUD-07)? Flag promotions from an unauthorised entity (e.g. a fund GP, introducer or influencer) with no authorised communicator, no approver and no exemption.",
+    "applies_to": "all",
+    "fail_example": "Brought to you by Northgate Capital Partners GP Ltd (not FCA authorised). Invest in our new growth fund today - minimum £10,000.",
+    "pass_example": "This financial promotion has been approved by Example Approvals Ltd (FRN 000000), which is authorised and regulated by the Financial Conduct Authority, on 1 October 2026."
+  },
+  {
+    "id": "AUD-02",
+    "source": "FCA COBS 4.5.2R(1) and (1A), COBS 4.5.2AR",
+    "source_url": "https://www.handbook.fca.org.uk/handbook/COBS/4/5.html",
+    "rule_text": "A firm must ensure that information: (1) includes the name of the firm (and also, where relevant, the name of the firm that has confirmed the compliance of the financial promotion for the purposes of COBS 4.10.9AR(3)(a)); (1A) where relevant, includes the date on which the financial promotion was approved; ... [COBS 4.5.2AR] (2) The information in (1)(b) may be provided on a webpage to which a link is clearly provided in the financial promotion. (3) The link in (2) must be in the format: ‘Approver FRN [firm reference number of the firm that approved or confirmed the compliance of the financial promotion]'.",
+    "test": "Does the promotion name the firm communicating it? Where the promotion is approved by an authorised firm for an unauthorised communicator, does it name the approver and give the approval date (or, in a short digital format, a clear link in the form 'Approver FRN [number]')? Applies to non-MiFID promotions likely to be received by retail clients.",
+    "applies_to": "retail",
+    "fail_example": "Approved by an FCA-authorised firm. Invest now in our property income fund.",
+    "pass_example": "Issued by Riverside Property Income Ltd. Approved by Example Approvals Ltd on 1 October 2026. Approver FRN 000000."
+  },
+  {
+    "id": "AUD-03",
+    "source": "FCA GEN 4.5.3R, GEN 4.5.4R and GEN 4.5.6G",
+    "source_url": "https://www.handbook.fca.org.uk/handbook/GEN/4/5.html",
+    "rule_text": "[GEN 4.5.3R] A firm must not indicate or imply that it is authorised by the FCA in respect of business for which it is not so authorised. [GEN 4.5.4R] A firm must not indicate or imply that it is regulated or otherwise supervised by the FCA in respect of business for which it is not regulated by the FCA. [GEN 4.5.6G] It is likely to be misleading for a firm that is not authorised by the FCA or PRA to state or imply that it is so authorised. It is also likely to be misleading for a firm to state or imply that a client will have recourse to the Financial Ombudsman Service or the FSCS where this is not the case.",
+    "test": "Does the promotion state or imply FCA authorisation/regulation for an entity, product or activity that is not authorised/regulated (e.g. an unregulated fund, an overseas entity, a GP vehicle), or imply FOS/FSCS protection that does not apply? 'FCA-regulated' badges next to an unregulated product are a fail.",
+    "applies_to": "all",
+    "fail_example": "FCA regulated and FSCS protected: our private credit notes give you peace of mind.",
+    "pass_example": "Harbour Wealth Ltd is authorised and regulated by the Financial Conduct Authority. The private credit notes are not regulated by the FCA and are not covered by the Financial Services Compensation Scheme."
+  },
+  {
+    "id": "AUD-04",
+    "source": "FCA COBS 4.12B.6R and COBS 4.12B.7R(1)",
+    "source_url": "https://www.handbook.fca.org.uk/handbook/COBS/4/12B.html",
+    "rule_text": "[COBS 4.12B.6R] (1) A firm must not communicate or approve a financial promotion which relates to a non-mass market investment where that financial promotion is addressed to, or disseminated in such a way that it is likely to be received by, a retail client. (2) The restriction in (1) is subject to COBS 4.12B.7R and does not apply to units in unregulated collective investment schemes, which are subject to a statutory restriction on promotion in section 238 of the Act. [COBS 4.12B.7R(1)] The restriction in COBS 4.12B.6R does not apply if the following conditions are met: (a) the financial promotion falls within an applicable exemption in the first column in the table in (5) because either: (i) it is made to, or directed at, only those recipients whom the firm communicating the financial promotion has taken reasonable steps to establish are persons in the second column of the table; ...",
+    "test": "Does the promotion relate to a non-mass market investment (e.g. an unregulated collective investment scheme / unregulated private equity or private credit fund, or a pooled vehicle that is not a mass-market product) AND is it published in a way likely to reach ordinary retail investors (public website without gating, social media, mass email, press ad)? If so, it fails unless the promotion is clearly restricted to an exempt audience (e.g. certified high net worth or sophisticated investors with the certification process in place).",
+    "applies_to": "retail",
+    "fail_example": "Instagram post: 'Back the next unicorn - our unregulated venture fund is open to everyone from £1,000. Swipe up to invest.'",
+    "pass_example": "This page is available only to investors who have completed a certified high net worth or sophisticated investor statement and our eligibility assessment. It is not for ordinary retail investors."
+  },
+  {
+    "id": "AUD-05",
+    "source": "Financial Promotion Order 2005 (SI 2005/1529) Art 19(1) and (4)(a)-(b)",
+    "source_url": "https://www.legislation.gov.uk/uksi/2005/1529/article/19",
+    "rule_text": "(1) The financial promotion restriction does not apply to any communication which— (a) is made only to recipients whom the person making the communication believes on reasonable grounds to be investment professionals; or (b) may reasonably be regarded as directed only at such recipients. ... (4) The conditions are that— (a) the communication is accompanied by an indication that it is directed at persons having professional experience in matters relating to investments and that any investment or investment activity to which it relates is available only to such persons or will be engaged in only with such persons; (b) the communication is accompanied by an indication that persons who do not have professional experience in matters relating to investments should not rely on it; (c) there are in place proper systems and procedures to prevent recipients other than investment professionals engaging in the investment activity to which the communication relates ...",
+    "test": "If the promotion is labelled 'professional investors only' / 'for investment professionals' (typical for PE/VC fund marketing by an unauthorised GP), does it carry BOTH indications: (a) that it is directed at persons with professional experience in matters relating to investments and the investment is available only to them, and (b) that persons without such experience should not rely on it? Is the distribution channel consistent with that (not a public social media post)?",
+    "applies_to": "professional",
+    "fail_example": "Professional investors only. Fund IV targets 3x gross MOIC - share this with anyone who might be interested!",
+    "pass_example": "This document is directed only at persons having professional experience in matters relating to investments, and any investment to which it relates is available only to such persons. Persons who do not have professional experience in matters relating to investments should not rely on it."
+  },
+  {
+    "id": "AUD-06",
+    "source": "Financial Promotion Order 2005 (SI 2005/1529) Art 48(4), (5) and (7)",
+    "source_url": "https://www.legislation.gov.uk/uksi/2005/1529/article/48",
+    "rule_text": "(4) The requirements of this paragraph are that either the communication is accompanied by the giving of a warning and information in accordance with paragraphs (5), (5A) and (6) ... (5) The warning must be in the following terms— “The content of this promotion has not been approved by an authorised person within the meaning of the Financial Services and Markets Act 2000. Reliance on this promotion for the purpose of engaging in any investment activity may expose an individual to a significant risk of losing all of the property or other assets invested.” ... (7) The requirements of this paragraph are that the communication is accompanied by an indication— (a) that it is exempt from the general restriction (in section 21 of the Act) on the communication of invitations or inducements to engage in investment activity on the ground that it is made to a high net worth individual; (b) of the requirements that must be met for an individual to qualify as a high net worth individual; and (c) that any individual who is in any doubt about the investment to which the communication relates should consult an authorised person specialising in advising on investments of the kind in question.",
+    "test": "If an unapproved promotion relies on 'high net worth individuals only', does it (i) carry the Art 48(5) warning in the prescribed terms at the beginning, in black bold type in a black border, (ii) give the communicator's full name and an address for enquiries (Art 48(5A)), and (iii) state that it is exempt from s21 because it is made to a high net worth individual, what the qualifying requirements are, and that anyone in doubt should consult an authorised adviser? The exemption only covers unlisted company shares/debt and related investments (Art 48(8)).",
+    "applies_to": "retail",
+    "fail_example": "Exclusive to high net worth investors: pre-IPO shares in a fast-growing tech company. Reply to this email to reserve your allocation.",
+    "pass_example": "The content of this promotion has not been approved by an authorised person within the meaning of the Financial Services and Markets Act 2000. Reliance on this promotion for the purpose of engaging in any investment activity may expose an individual to a significant risk of losing all of the property or other assets invested. This promotion is exempt from the general restriction in section 21 of the Act on the ground that it is made to a high net worth individual; [qualifying requirements]. If you are in any doubt about this investment you should consult an authorised person specialising in advising on investments of this kind."
+  },
+  {
+    "id": "AUD-07",
+    "source": "Financial Promotion Order 2005 (SI 2005/1529) Art 50(3) and Art 50A(5), (7)",
+    "source_url": "https://www.legislation.gov.uk/uksi/2005/1529/article/50",
+    "rule_text": "[Art 50(3)] The requirements of this paragraph are that the communication is accompanied by an indication— (a) that it is exempt from the general restriction (in section 21 of the Act) on the communication of invitations or inducements to engage in investment activity on the ground that it is made to a certified sophisticated investor; (b) of the requirements that must be met for a person to qualify as a certified sophisticated investor; (c) that the content of the communication has not been approved by an authorised person and that such approval is, unless this exemption or any other exemption applies, required by section 21 of the Act; (d) that reliance on the communication for the purpose of engaging in any investment activity may expose the individual to a significant risk of losing all of the property invested or of incurring additional liability; (e) that any person who is in any doubt about the investment to which the communication relates should consult an authorised person specialising in advising on investments of the kind in question. [Art 50A(7), self-certified sophisticated investors, https://www.legislation.gov.uk/uksi/2005/1529/article/50A] ... an indication— (a) that it is exempt from the general restriction (in section 21 of the Act) ... on the ground that it is made to a self-certified sophisticated investor; (b) of the requirements that must be met for an individual to qualify as a self-certified sophisticated investor; (c) that any individual who is in any doubt about the investment to which the communication relates should consult an authorised person specialising in advising on investments of the kind in question.",
+    "test": "If an unapproved promotion is labelled 'sophisticated investors only', does it carry the indications required for the exemption it relies on: that it is exempt from s21 because it is made to a (certified or self-certified) sophisticated investor, the qualifying requirements, that its content has not been approved by an authorised person (Art 50), the risk of losing all of the property invested (Art 50; for Art 50A the prescribed Art 50A(5) warning), and that anyone in doubt should consult an authorised adviser?",
+    "applies_to": "retail",
+    "fail_example": "For sophisticated investors. Join our angel syndicate - no paperwork, just send us your commitment.",
+    "pass_example": "This communication is exempt from the general restriction in section 21 of the Financial Services and Markets Act 2000 on the ground that it is made to a certified sophisticated investor. [Qualifying requirements.] Its content has not been approved by an authorised person. Reliance on it may expose you to a significant risk of losing all of the property invested or of incurring additional liability. If in doubt, consult an authorised person specialising in advising on investments of this kind."
+  },
+  {
+    "id": "AUD-08",
+    "source": "FCA PRIN 2A.5.3R (Consumer Duty: consumer understanding outcome)",
+    "source_url": "https://www.handbook.fca.org.uk/handbook/PRIN/2A/5.html",
+    "rule_text": "(1) A firm must support retail customer understanding so that its communications: (a) meet the information needs of retail customers; (b) are likely to be understood by retail customers; and (c) equip retail customers to make decisions that are effective, timely and properly informed. (2) A firm must communicate information to retail customers in a way which is clear, fair and not misleading.",
+    "test": "Read as the intended retail customer (the product's target market): is the promotion written in plain language, are jargon terms (e.g. IRR, MOIC, carried interest, lock-up, NAV) explained, is key information such as risks, costs and access/liquidity terms prominent rather than buried, and does it give enough to make an informed decision rather than just a call to action?",
+    "applies_to": "retail",
+    "fail_example": "Target 18% net IRR, 2/20 with 8% hurdle, 10+2 term, quarterly NAV. Commit now.",
+    "pass_example": "We aim for an annual return of around 18% after fees, but this is a target, not a promise. Your money will be locked in for about 10 to 12 years and you may not be able to sell early. Fees: 2% a year plus 20% of profits above an 8% return."
+  }
+]

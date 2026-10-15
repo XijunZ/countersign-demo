@@ -1,0 +1,633 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rulebooks · Countersign</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,600&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<style>
+:root {
+  --paper: #eef2ef; --panel: #f9fbfa; --ink: #18221f; --muted: #5b6b66; --rule: #cfd8d4;
+  --bench: #1e4d3f; --prosecution: #9e2b25; --defence: #2c5a85; --judge: #8c6a1f;
+  --amber: #b7791f; --pass: #2f7a4b; --clerk: #55606b;
+  --serif: "Newsreader", Georgia, serif; --sans: "Public Sans", system-ui, sans-serif;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--paper); color: var(--ink); font: 15px/1.5 var(--sans); }
+button, input, textarea, select { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--bench); outline-offset: 2px; }
+a { color: var(--defence); }
+
+header { display: flex; align-items: center; gap: 24px; padding: 14px 24px; background: var(--bench); color: #fff; flex-wrap: wrap; }
+header h1 { margin: 0; font: 600 22px/1 var(--serif); letter-spacing: .01em; }
+header p { margin: 0; opacity: .8; font-size: 13px; }
+nav.top { display: flex; gap: 4px; margin-left: auto; }
+nav.top a { color: #fff; text-decoration: none; padding: 6px 12px; border-radius: 6px; font-size: 14px; font-weight: 500; opacity: .85; }
+nav.top a:hover { opacity: 1; background: rgba(255,255,255,.1); }
+nav.top a[aria-current="page"] { background: rgba(255,255,255,.18); opacity: 1; font-weight: 600; }
+
+main { display: grid; grid-template-columns: 260px minmax(0, 1fr) 420px; min-height: calc(100vh - 60px); }
+section { padding: 18px 20px; border-right: 1px solid var(--rule); min-width: 0; }
+section:last-child { border-right: 0; }
+h2 { font: 600 16px/1.3 var(--sans); margin: 0 0 12px; }
+h3 { font: 600 14px/1.3 var(--sans); margin: 22px 0 10px; }
+.hint { color: var(--muted); font-size: 13px; margin: 0 0 12px; }
+.btn { display: inline-block; padding: 8px 14px; border-radius: 6px; border: 1px solid var(--bench); background: var(--bench); color: #fff; font-weight: 600; cursor: pointer; text-decoration: none; font-size: 14px; }
+.btn.ghost { background: transparent; color: var(--bench); }
+.btn.small { padding: 4px 10px; font-size: 13px; }
+.btn.danger { border-color: var(--prosecution); color: var(--prosecution); background: transparent; }
+.btn:disabled { opacity: .5; cursor: default; }
+.row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; align-items: center; }
+.empty { color: var(--muted); font-size: 14px; border: 1px dashed var(--rule); border-radius: 6px; padding: 18px; }
+input[type=text], textarea { width: 100%; padding: 6px 8px; border: 1px solid var(--rule); border-radius: 4px; background: #fff; font-size: 13px; }
+textarea { font: 14px/1.5 var(--serif); min-height: 70px; resize: vertical; }
+label.f { display: block; font-size: 12.5px; font-weight: 600; margin-top: 8px; }
+
+/* Rulebook list */
+.books { list-style: none; margin: 0; padding: 0; }
+.books button { width: 100%; text-align: left; display: flex; justify-content: space-between; gap: 8px; align-items: center; border: 1px solid var(--rule); background: var(--panel); border-left: 4px solid var(--c, var(--rule)); border-radius: 6px; padding: 9px 10px; margin-bottom: 8px; cursor: pointer; font-size: 14px; }
+.books button[aria-current="true"] { background: #fff; box-shadow: 0 0 0 2px var(--c, var(--bench)); }
+.books small { display: block; color: var(--muted); font-size: 12px; }
+.count { font-variant-numeric: tabular-nums; font-size: 12px; color: var(--muted); border: 1px solid var(--rule); border-radius: 10px; padding: 0 7px; background: #fff; white-space: nowrap; }
+.vbadge { font-size: 11.5px; font-weight: 700; color: #fff; background: var(--pass); border-radius: 10px; padding: 1px 7px; display: inline-block; font-variant-numeric: tabular-nums; }
+.vbadge.tick { animation: tick .9s ease-out; }
+@keyframes tick { 0% { transform: scale(1); } 30% { transform: scale(1.5); box-shadow: 0 0 0 6px rgba(47,122,75,.25); } 100% { transform: scale(1); } }
+.reviewer { margin-top: 18px; padding: 12px; border: 1px solid var(--rule); border-radius: 6px; background: var(--panel); }
+
+/* Rules */
+.bookhead { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; margin-bottom: 6px; }
+.bookhead h2 { margin: 0; }
+.note { border-left: 3px solid var(--judge); background: #f6f0e1; padding: 8px 12px; border-radius: 4px; font-size: 13px; margin: 0 0 14px; }
+.rules { list-style: none; margin: 0; padding: 0; }
+.rules > li { border: 1px solid var(--rule); background: var(--panel); border-radius: 6px; margin-bottom: 8px; transition: box-shadow .3s; }
+.rules > li.off { opacity: .6; }
+.rules > li.glow { animation: glow 2.4s ease-out; }
+@keyframes glow { 0%, 30% { box-shadow: 0 0 0 3px var(--pass), 0 0 18px rgba(47,122,75,.45); background: #e3f0e7; } 100% { box-shadow: none; } }
+.rules summary { cursor: pointer; padding: 9px 12px; display: flex; gap: 10px; align-items: baseline; list-style: none; }
+.rules summary::-webkit-details-marker { display: none; }
+.rules summary::before { content: "\25B8"; color: var(--muted); font-size: 12px; transition: transform .15s; }
+.rules details[open] summary::before { transform: rotate(90deg); }
+.rid { font-weight: 700; font-size: 13px; white-space: nowrap; color: var(--c, var(--bench)); }
+.rules .gist { font: 15px/1.45 var(--serif); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; flex: 1; }
+.rules details[open] .gist { white-space: normal; }
+.rules .body { padding: 0 12px 12px 34px; font-size: 13px; }
+.rules .body .src { color: var(--muted); }
+.rules .body .text { font: 15px/1.55 var(--serif); margin: 6px 0; }
+.rules .body .test { background: #fff; border: 1px solid var(--rule); border-radius: 4px; padding: 6px 10px; }
+.pill { font-size: 11.5px; border: 1px solid var(--rule); border-radius: 3px; padding: 0 6px; color: var(--muted); white-space: nowrap; }
+.pill.on { color: var(--pass); border-color: var(--pass); }
+
+/* Learning */
+.learn { border: 1px solid var(--rule); border-radius: 8px; background: var(--panel); padding: 14px; }
+.runstat { font-size: 13px; color: var(--muted); }
+.runstat b { color: var(--ink); }
+.dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--muted); margin-right: 6px; vertical-align: 1px; }
+.dot.pending { background: var(--amber); } .dot.running { background: var(--defence); animation: blink 1.1s infinite; }
+.dot.done { background: var(--pass); } .dot.failed { background: var(--prosecution); }
+@keyframes blink { 50% { opacity: .3; } }
+.prop { border: 1px solid var(--rule); border-left: 4px solid var(--k); background: #fff; border-radius: 6px; padding: 12px; margin-top: 12px; }
+.prop.new { animation: land .5s ease-out; }
+@keyframes land { from { transform: translateY(-10px); opacity: 0; } }
+.prop .top { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; }
+.kind { font-size: 12px; font-weight: 700; color: var(--k); border: 1px solid var(--k); border-radius: 3px; padding: 0 6px; }
+.prop .text { font: 15px/1.5 var(--serif); background: #e3f0e7; padding: 6px 10px; border-radius: 4px; margin: 8px 0; }
+.prop.k-retire .text { background: #f7e1df; text-decoration: line-through; }
+.prop p { margin: 6px 0; font-size: 13px; }
+.prop ul.ev { margin: 6px 0; padding-left: 0; list-style: none; }
+.prop ul.ev li { font: 13.5px/1.45 var(--serif); border-left: 2px solid var(--rule); padding-left: 8px; margin: 4px 0; color: #34433e; }
+.checks { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px; }
+.checks div { font-size: 12.5px; background: var(--panel); border: 1px solid var(--rule); border-radius: 4px; padding: 6px 8px; }
+.checks b { display: block; font-size: 12px; }
+.decided { font-size: 12.5px; margin-top: 8px; color: var(--muted); }
+.decided.approved { color: var(--pass); font-weight: 600; } .decided.rejected { color: var(--prosecution); }
+.flyer { position: fixed; z-index: 50; pointer-events: none; margin: 0 !important; }
+
+/* Versions */
+.versions { list-style: none; padding: 0; margin: 0; }
+.versions button { width: 100%; text-align: left; border: 1px solid var(--rule); border-radius: 6px; background: var(--panel); padding: 8px 10px; margin-bottom: 6px; cursor: pointer; display: grid; grid-template-columns: 44px minmax(0,1fr); gap: 8px; font-size: 13px; }
+.versions button[aria-expanded="true"] { background: #fff; box-shadow: 0 0 0 2px var(--bench); }
+.versions .vn { font-weight: 700; color: var(--bench); font-variant-numeric: tabular-nums; }
+.versions small { display: block; color: var(--muted); font-size: 12px; }
+.diff { border: 1px solid var(--rule); background: #fff; border-radius: 6px; padding: 10px; margin: -2px 0 10px; font-size: 13px; }
+.diff .add { color: var(--pass); } .diff .rem { color: var(--prosecution); } .diff .chg { color: var(--judge); }
+.diff del { background: #f7e1df; color: var(--prosecution); font-family: var(--serif); }
+.diff ins { background: #e3f0e7; color: var(--pass); text-decoration: none; font-family: var(--serif); }
+.diff div { margin: 4px 0; }
+/* Regulatory updates */
+.regup { border: 1px solid var(--rule); border-radius: 8px; background: var(--panel); padding: 14px; margin-bottom: 22px; }
+.regup .head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+.regup .head h2 { margin: 0; }
+.alerts { list-style: none; margin: 10px 0 0; padding: 0; max-height: 46vh; overflow: auto; }
+.alert { border: 1px solid var(--rule); border-left: 4px solid var(--k, var(--amber)); background: #fff; border-radius: 6px; padding: 10px 12px; margin-bottom: 8px; font-size: 13px; }
+.alert.new-in { animation: land .5s ease-out; }
+.alert.s-reviewed { --k: var(--pass); } .alert.s-dismissed { --k: var(--rule); opacity: .7; }
+.alert .meta { display: flex; justify-content: space-between; gap: 8px; color: var(--muted); font-size: 12px; flex-wrap: wrap; }
+.alert .src { font-weight: 700; color: var(--ink); }
+.alert .title { font: 600 15px/1.35 var(--serif); margin: 4px 0; display: block; }
+.alert .aff { margin: 4px 0; display: flex; gap: 4px; flex-wrap: wrap; align-items: center; }
+.alert .sum { margin: 4px 0 0; color: #34433e; }
+.astatus { font-size: 11.5px; font-weight: 700; border-radius: 3px; padding: 0 6px; border: 1px solid currentColor; }
+.astatus.new { color: var(--amber); } .astatus.reviewed { color: var(--pass); } .astatus.dismissed { color: var(--muted); }
+.toast { position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%); background: var(--ink); color: #fff; padding: 8px 14px; border-radius: 6px; font-size: 13px; z-index: 60; }
+
+@media (max-width: 1200px) { main { grid-template-columns: 240px minmax(0,1fr); } main > section:last-child { grid-column: 1 / -1; border-top: 1px solid var(--rule); } }
+@media (max-width: 800px) { main { grid-template-columns: minmax(0,1fr); } section { border-right: 0; border-bottom: 1px solid var(--rule); } nav.top { margin-left: 0; } .checks { grid-template-columns: 1fr; } }
+@media (max-width: 600px) { header, section { padding-left: 16px; padding-right: 16px; } .rules .body { padding-left: 12px; } }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+.ruletabs { display: flex; gap: 0; margin: 14px 24px 0; border: 1px solid var(--rule); border-radius: 6px; overflow: hidden; width: fit-content; }
+.ruletabs button { border: 0; background: var(--panel); padding: 8px 18px; font: 600 14px var(--sans); cursor: pointer; }
+.ruletabs button[aria-selected="true"] { background: var(--bench); color: #fff; }
+.watch { display: flex; justify-content: space-between; align-items: center; gap: 10px; border: 1px solid var(--rule); border-left: 4px solid var(--pass); border-radius: 6px; background: #fff; padding: 10px 12px; margin-bottom: 14px; }
+.watch.changed { border-left-color: var(--prosecution); }
+.watch b { display: block; font-size: 14px; } .watch .hint { margin: 0; }
+[hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>Countersign</h1>
+    <p>The rules every review is judged against, and how they learn from reviewer feedback.</p>
+  </div>
+  <nav class="top" aria-label="Main">
+    <a href="/">Review</a>
+    <a href="web/rulebooks.html" aria-current="page">Rulebooks</a>
+    <a href="web/history.html">Register</a>
+  </nav>
+</header>
+<div class="ruletabs" role="tablist">
+  <button role="tab" id="tab-reg" aria-selected="true">Regulatory rules</button>
+  <button role="tab" id="tab-house" aria-selected="false">House rules</button>
+</div>
+<main>
+  <section aria-labelledby="h-books">
+    <h2 id="h-books">Rulebooks</h2>
+    <p class="hint" id="books-hint">Current regulatory rules, quoted from the official sources and watched for changes.</p>
+    <ul class="books" id="books"><li class="hint">Loading…</li></ul>
+    <div class="reviewer">
+      <label class="f" for="reviewer" style="margin-top:0">Your name</label>
+      <input type="text" id="reviewer" placeholder="e.g. Priya, Compliance" autocomplete="name">
+      <p class="hint" style="margin:6px 0 0">Recorded on every change you make.</p>
+    </div>
+  </section>
+
+  <section aria-labelledby="h-rules">
+    <div id="book"></div>
+  </section>
+
+  <section aria-labelledby="h-learn">
+    <div class="regup" aria-labelledby="h-regup">
+      <div class="watch" id="watch">
+        <div><b>Reg Watch</b><span id="watch-status" class="hint">Checking status…</span></div>
+        <button class="btn small" id="watch-now" type="button">Check now</button>
+      </div>
+      <div class="head"><h2 id="h-regup">Regulatory updates</h2><span class="hint" style="margin:0" id="lastcheck"></span></div>
+      <p class="hint" style="margin:6px 0 0">Changes spotted at the regulators' sources that may affect a rulebook. Review each one before relying on the rules it touches.</p>
+      <ul class="alerts" id="alerts" aria-live="polite"><li class="hint">Loading…</li></ul>
+    </div>
+    <div id="house-side">
+    <h2 id="h-learn">Learning from feedback</h2>
+    <div class="learn">
+      <p class="hint">An agent reads recent reviewer feedback and proposes changes to the house rules. Each proposal is checked against the existing house rules and the regulatory rulebooks. Nothing changes until you approve it.</p>
+      <div class="row" style="margin-top:0">
+        <button class="btn" id="analyse">Analyse feedback</button>
+        <span class="runstat" id="runstat" aria-live="polite"></span>
+      </div>
+      <div id="proposals" aria-live="polite"></div>
+    </div>
+    <h3>House rules version history</h3>
+    <ul class="versions" id="versions"><li class="hint">Loading…</li></ul>
+    </div>
+  </section>
+</main>
+
+<script>
+const CFG = window.COURTROOM || {};
+const sb = supabase.createClient(CFG.SUPABASE_URL, CFG.SUPABASE_ANON_KEY);
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const when = (t) => t ? new Date(t).toLocaleString(undefined, { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }) : "";
+const COLORS = ["var(--prosecution)", "var(--defence)", "var(--judge)", "var(--clerk)", "var(--amber)"];
+const DEFAULT_IDS = ["fair_clear", "risk_warnings", "performance", "status_audience"];
+const DEFAULT_LABELS = { fair_clear: "Fair, clear, not misleading", risk_warnings: "Risk warnings", performance: "Past performance", status_audience: "Status and audience" };
+
+const state = { books: [], house: [], versions: [], proposals: new Map(), selected: "house_rules", openVersion: null, editing: null, adding: false, run: null };
+
+// Reviewer name
+const revInput = $("reviewer");
+try { revInput.value = localStorage.getItem("reviewer") || ""; } catch (e) {}
+revInput.addEventListener("input", () => { try { localStorage.setItem("reviewer", revInput.value.trim()); } catch (e) {} });
+function who() {
+  const n = revInput.value.trim();
+  if (!n) { revInput.focus(); toast("Add your name first so the change is attributed."); return null; }
+  return n;
+}
+function toast(msg) {
+  const t = document.createElement("div"); t.className = "toast"; t.textContent = msg; t.setAttribute("role", "status");
+  document.body.appendChild(t); setTimeout(() => t.remove(), 3200);
+}
+
+// ---------- Loading ----------
+async function loadRegulatory() {
+  let ids = DEFAULT_IDS, labels = { ...DEFAULT_LABELS };
+  try {
+    const r = await fetch("prompts/jurisdictions.json");
+    if (r.ok) { const j = await r.json(); if (j.rulebook_labels) { ids = Object.keys(j.rulebook_labels).filter((k) => k !== "house_rules"); Object.assign(labels, j.rulebook_labels); } }
+  } catch (e) {}
+  const out = [];
+  await Promise.all(ids.map(async (id, i) => {
+    try {
+      const r = await fetch(`prompts/rulebook_${id}.json`);
+      if (!r.ok) return;
+      const rules = await r.json();
+      out[i] = { id, label: labels[id] || id, rules: Array.isArray(rules) ? rules : (rules.rules || []), color: COLORS[i % COLORS.length] };
+    } catch (e) {}
+  }));
+  state.books = out.filter(Boolean);
+}
+async function loadHouse() {
+  const { data, error } = await sb.from("house_rules").select("*").order("rule_id");
+  if (error) { toast("Could not load house rules: " + error.message); return; }
+  state.house = data || [];
+}
+async function loadVersions() {
+  const { data } = await sb.from("rulebook_versions").select("*").eq("rulebook", "house_rules").order("version", { ascending: false }).limit(100);
+  state.versions = data || [];
+}
+async function loadProposals() {
+  const { data } = await sb.from("rule_proposals").select("*").order("created_at", { ascending: false }).limit(40);
+  (data || []).forEach((p) => state.proposals.set(p.id, p));
+}
+async function loadRun() {
+  const { data } = await sb.from("learner_runs").select("*").order("created_at", { ascending: false }).limit(1);
+  state.run = (data || [])[0] || null;
+}
+const currentVersion = () => state.versions.length ? state.versions[0].version : 0;
+
+// ---------- Rendering ----------
+function renderBooks() {
+  const active = state.house.filter((r) => r.active !== false).length;
+  const items = state.tab === "house" ? [`<li><button data-book="house_rules" aria-current="${state.selected === "house_rules"}" style="--c:var(--bench)" id="book-house">
+      <span>House rules<small>Firm policy, editable</small></span>
+      <span style="text-align:right"><span class="count">${active}</span><br><span class="vbadge" id="vbadge" title="Current version">v${currentVersion()}</span></span></button></li>`] : [];
+  if (state.tab !== "house") state.books.forEach((b) => items.push(`<li><button data-book="${esc(b.id)}" aria-current="${state.selected === b.id}" style="--c:${b.color}">
+      <span>${esc(b.label)}<small>Regulatory, read-only</small></span><span class="count">${b.rules.length}</span></button></li>`));
+  $("books").innerHTML = items.join("");
+}
+$("books").addEventListener("click", (e) => {
+  const b = e.target.closest("button[data-book]"); if (!b) return;
+  state.selected = b.dataset.book; state.editing = null; state.adding = false;
+  renderBooks(); renderBook();
+});
+
+function renderBook() {
+  if (state.selected === "house_rules") return renderHouse();
+  const b = state.books.find((x) => x.id === state.selected);
+  if (!b) { $("book").innerHTML = `<p class="empty">Rulebook not found.</p>`; return; }
+  $("book").innerHTML = `<div class="bookhead"><h2 id="h-rules">${esc(b.label)}</h2><span class="hint" style="margin:0">${b.rules.length} rules</span></div>
+    <p class="note">Current rule text, copied from the official source. Reg Watch flags any change at the source.</p>
+    <ul class="rules" style="--c:${b.color}">${b.rules.map((r) => `<li><details>
+      <summary><span class="rid">${esc(r.id)}</span><span class="gist">${esc(r.rule_text)}</span></summary>
+      <div class="body">
+        <div class="src">${r.source_url ? `<a href="${esc(r.source_url)}" target="_blank" rel="noopener">${esc(r.source)}</a>` : esc(r.source)}</div>
+        <div class="text">${esc(r.rule_text)}</div>
+      </div></details></li>`).join("")}</ul>
+    <p class="hint">Official wording only. Our expert interpretations used by the agents are not shown.</p>`;
+}
+
+function nextHouseId() {
+  let max = 0;
+  state.house.forEach((r) => { const m = /HOUSE-(\d+)/.exec(r.rule_id); if (m) max = Math.max(max, +m[1]); });
+  return "HOUSE-" + String(max + 1).padStart(2, "0");
+}
+
+function renderHouse() {
+  const rows = state.house.map((r) => {
+    if (state.editing === r.rule_id) return `<li data-rid="${esc(r.rule_id)}"><div style="padding:12px">
+      <span class="rid">${esc(r.rule_id)}</span>
+      <label class="f" for="e-text">Rule</label><textarea id="e-text">${esc(r.rule_text)}</textarea>
+      <label class="f" for="e-test">Test</label><input type="text" id="e-test" value="${esc(r.test)}">
+      <label class="f" for="e-src">Source</label><input type="text" id="e-src" value="${esc(r.source)}">
+      <div class="row"><button class="btn small" data-act="save" data-rid="${esc(r.rule_id)}">Save</button><button class="btn ghost small" data-act="cancel">Cancel</button></div></div></li>`;
+    return `<li data-rid="${esc(r.rule_id)}" class="${r.active === false ? "off" : ""}"><details>
+      <summary><span class="rid">${esc(r.rule_id)}</span><span class="gist">${esc(r.rule_text)}</span><span class="pill ${r.active === false ? "" : "on"}">${r.active === false ? "Retired" : "Active"}</span></summary>
+      <div class="body">
+        <div class="src">${esc(r.source || "House rule")}${r.created_by ? ` · added by ${esc(r.created_by)}` : ""}</div>
+        <div class="text">${esc(r.rule_text)}</div>
+        ${r.test ? `<div class="test"><b>Test:</b> ${esc(r.test)}</div>` : ""}
+        <div class="row"><button class="btn ghost small" data-act="edit" data-rid="${esc(r.rule_id)}">Edit</button>
+          <button class="btn ghost small" data-act="toggle" data-rid="${esc(r.rule_id)}">${r.active === false ? "Reactivate" : "Retire"}</button></div>
+      </div></details></li>`;
+  }).join("");
+  const add = state.adding ? `<div class="learn" style="margin-top:12px"><b>New rule ${esc(nextHouseId())}</b>
+      <label class="f" for="n-text">Rule</label><textarea id="n-text" placeholder="What marketing copy must or must not do"></textarea>
+      <label class="f" for="n-test">Test</label><input type="text" id="n-test" placeholder="A yes/no question a reviewer can answer">
+      <label class="f" for="n-src">Source</label><input type="text" id="n-src" value="House rule">
+      <div class="row"><button class="btn small" data-act="create">Add rule</button><button class="btn ghost small" data-act="cancel">Cancel</button></div></div>`
+    : `<div class="row"><button class="btn ghost" data-act="add">Add a house rule</button></div>`;
+  $("book").innerHTML = `<div class="bookhead"><h2 id="h-rules">House rules</h2><span class="hint" style="margin:0">${state.house.length} rules · version ${currentVersion()}</span></div>
+    <p class="hint">Your firm's own policy, applied on top of the regulatory rulebooks. Every save is versioned.</p>
+    ${state.house.length ? `<ul class="rules" id="house-list">${rows}</ul>` : `<p class="empty">No house rules yet.</p><ul class="rules" id="house-list"></ul>`}${add}`;
+}
+
+$("book").addEventListener("click", async (e) => {
+  const b = e.target.closest("button[data-act]"); if (!b) return;
+  const act = b.dataset.act, rid = b.dataset.rid;
+  if (act === "edit") { state.editing = rid; return renderHouse(); }
+  if (act === "cancel") { state.editing = null; state.adding = false; return renderHouse(); }
+  if (act === "add") { state.adding = true; renderHouse(); $("n-text").focus(); return; }
+  const name = who(); if (!name) return;
+  b.disabled = true;
+  try {
+    if (act === "save") {
+      const patch = { rule_text: $("e-text").value.trim(), test: $("e-test").value.trim(), source: $("e-src").value.trim() || "House rule" };
+      if (!patch.rule_text) throw new Error("The rule can't be empty.");
+      const { error } = await sb.from("house_rules").update(patch).eq("rule_id", rid); if (error) throw error;
+      state.editing = null;
+      await afterChange(`${name} edited ${rid}`, name, rid);
+    } else if (act === "toggle") {
+      const r = state.house.find((x) => x.rule_id === rid);
+      const active = r.active === false;
+      const { error } = await sb.from("house_rules").update({ active }).eq("rule_id", rid); if (error) throw error;
+      await afterChange(`${name} ${active ? "reactivated" : "retired"} ${rid}`, name, rid);
+    } else if (act === "create") {
+      const text = $("n-text").value.trim(); if (!text) throw new Error("Write the rule first.");
+      const id = nextHouseId();
+      const { error } = await sb.from("house_rules").insert({ rule_id: id, rule_text: text, test: $("n-test").value.trim() || null, source: $("n-src").value.trim() || "House rule", active: true, created_by: name });
+      if (error) throw error;
+      state.adding = false;
+      await afterChange(`${name} added ${id}`, name, id);
+    }
+  } catch (err) { toast(err.message || String(err)); b.disabled = false; }
+});
+
+async function snapshot(summary, name) {
+  await loadHouse();
+  const { data: top } = await sb.from("rulebook_versions").select("version").eq("rulebook", "house_rules").order("version", { ascending: false }).limit(1);
+  const version = ((top && top[0] && top[0].version) || 0) + 1;
+  const rules = state.house.map(({ rule_id, rule_text, test, source, active }) => ({ rule_id, rule_text, test, source, active }));
+  const { error } = await sb.from("rulebook_versions").insert({ rulebook: "house_rules", version, rules, change_summary: summary, created_by: name });
+  if (error) toast("Saved, but the version snapshot failed: " + error.message);
+  await loadVersions();
+  return version;
+}
+async function afterChange(summary, name, rid) {
+  await snapshot(summary, name);
+  renderBooks(); renderVersions();
+  if (state.selected === "house_rules") renderHouse();
+  highlight(rid);
+}
+function highlight(rid) {
+  const badge = $("vbadge");
+  if (badge) { badge.classList.remove("tick"); void badge.offsetWidth; badge.classList.add("tick"); }
+  const li = document.querySelector(`#house-list li[data-rid="${CSS.escape(rid)}"]`);
+  if (li) { li.classList.remove("glow"); void li.offsetWidth; li.classList.add("glow"); li.scrollIntoView({ block: "nearest", behavior: reduced ? "auto" : "smooth" }); }
+}
+
+// ---------- Versions ----------
+function renderVersions() {
+  if (!state.versions.length) { $("versions").innerHTML = `<li class="empty">No versions saved yet. The first change to the house rules creates version 1.</li>`; return; }
+  $("versions").innerHTML = state.versions.map((v, i) => `<li>
+    <button data-v="${v.version}" aria-expanded="${state.openVersion === v.version}"><span class="vn">v${v.version}</span>
+    <span>${esc(v.change_summary || "Snapshot")}<small>${esc(v.created_by || "Unknown")} · ${when(v.created_at)} · ${(v.rules || []).length} rules</small></span></button>
+    ${state.openVersion === v.version ? diffHtml(state.versions[i + 1], v) : ""}</li>`).join("");
+}
+$("versions").addEventListener("click", (e) => {
+  const b = e.target.closest("button[data-v]"); if (!b) return;
+  const v = +b.dataset.v; state.openVersion = state.openVersion === v ? null : v; renderVersions();
+});
+function diffHtml(prev, cur) {
+  const before = new Map(((prev && prev.rules) || []).map((r) => [r.rule_id, r]));
+  const after = new Map((cur.rules || []).map((r) => [r.rule_id, r]));
+  const lines = [];
+  after.forEach((r, id) => {
+    const o = before.get(id);
+    if (!o) lines.push(`<div><span class="add">Added ${esc(id)}</span>: <ins>${esc(r.rule_text)}</ins></div>`);
+    else {
+      const bits = [];
+      if (o.rule_text !== r.rule_text) bits.push(`<del>${esc(o.rule_text)}</del> <ins>${esc(r.rule_text)}</ins>`);
+      if ((o.test || "") !== (r.test || "")) bits.push(`test: <del>${esc(o.test)}</del> <ins>${esc(r.test)}</ins>`);
+      if ((o.active !== false) !== (r.active !== false)) bits.push(r.active === false ? "retired" : "reactivated");
+      if (bits.length) lines.push(`<div><span class="chg">Changed ${esc(id)}</span>: ${bits.join("; ")}</div>`);
+    }
+  });
+  before.forEach((r, id) => { if (!after.has(id)) lines.push(`<div><span class="rem">Removed ${esc(id)}</span>: <del>${esc(r.rule_text)}</del></div>`); });
+  if (!prev) lines.unshift(`<div class="hint" style="margin:0">First saved version.</div>`);
+  return `<div class="diff">${lines.join("") || `<span class="hint">No rule changes from v${prev.version}.</span>`}</div>`;
+}
+
+// ---------- Learning ----------
+function renderRun() {
+  const r = state.run;
+  if (!r) { $("runstat").innerHTML = ""; return; }
+  const label = { pending: "Waiting for the learner", running: "Reading feedback", done: "Finished", failed: "Failed" }[r.status] || r.status;
+  $("runstat").innerHTML = `<span class="dot ${esc(r.status)}"></span><b>${label}</b> · ${when(r.created_at)}${r.summary ? `<br>${esc(r.summary)}` : ""}`;
+  $("analyse").disabled = r.status === "pending" || r.status === "running";
+}
+$("analyse").addEventListener("click", async () => {
+  const name = who(); if (!name) return;
+  $("analyse").disabled = true;
+  const { data, error } = await sb.from("learner_runs").insert({ status: "pending", created_by: name }).select().single();
+  if (error) { toast(error.message); $("analyse").disabled = false; return; }
+  state.run = data; renderRun();
+});
+
+const KIND = { add: ["Add", "var(--pass)"], modify: ["Modify", "var(--judge)"], retire: ["Retire", "var(--prosecution)"] };
+function evidenceList(ev) {
+  if (!ev) return [];
+  const arr = Array.isArray(ev) ? ev : (ev.quotes || ev.items || ev.feedback || []);
+  return arr.map((x) => typeof x === "string" ? x : (x.quote || x.comment || x.text || x.claim || "")).filter(Boolean).slice(0, 4);
+}
+function proposalHtml(p, isNew) {
+  const [kl, kc] = KIND[p.kind] || [p.kind || "Change", "var(--clerk)"];
+  const ev = evidenceList(p.evidence);
+  const open = p.status === "proposed";
+  return `<article class="prop k-${esc(p.kind)}${isNew ? " new" : ""}" id="prop-${p.id}" style="--k:${kc}">
+    <div class="top"><span><span class="kind">${esc(kl)}</span> <span class="rid">${esc(p.rule_id || (p.kind === "add" ? "New rule" : ""))}</span></span><span class="hint" style="margin:0">${when(p.created_at)}</span></div>
+    ${p.rule_text ? `<div class="text">${esc(p.rule_text)}</div>` : ""}
+    ${p.test ? `<p><b>Test:</b> ${esc(p.test)}</p>` : ""}
+    ${p.rationale ? `<p><b>Why:</b> ${esc(p.rationale)}</p>` : ""}
+    ${ev.length ? `<p style="margin-bottom:0"><b>Feedback behind it</b></p><ul class="ev">${ev.map((q) => `<li>${esc(q)}</li>`).join("")}</ul>` : ""}
+    <div class="checks"><div><b>Against house rules</b>${esc(p.clash_check || "Not checked")}</div><div><b>Against regulation</b>${esc(p.legal_check || "Not checked")}</div></div>
+    ${open ? `<div class="row"><button class="btn small" data-pact="approve" data-id="${p.id}">Approve</button><button class="btn danger small" data-pact="reject" data-id="${p.id}">Reject</button></div>`
+      : `<div class="decided ${esc(p.status)}">${p.status === "approved" ? "Approved" : "Rejected"}${p.decided_by ? ` by ${esc(p.decided_by)}` : ""} · ${when(p.decided_at)}</div>`}
+  </article>`;
+}
+function renderProposals(newId) {
+  const list = [...state.proposals.values()];
+  list.sort((a, b) => ((b.status === "proposed") - (a.status === "proposed")) || (new Date(b.created_at) - new Date(a.created_at)));
+  $("proposals").innerHTML = list.length ? list.map((p) => proposalHtml(p, p.id === newId)).join("") : `<p class="empty" style="margin-top:12px">No proposals yet. Run an analysis once reviewers have left feedback on some rulings.</p>`;
+}
+$("proposals").addEventListener("click", async (e) => {
+  const b = e.target.closest("button[data-pact]"); if (!b) return;
+  const name = who(); if (!name) return;
+  const p = state.proposals.get(+b.dataset.id); if (!p) return;
+  b.closest(".row").querySelectorAll("button").forEach((x) => x.disabled = true);
+  try {
+    if (b.dataset.pact === "reject") {
+      const { error } = await sb.from("rule_proposals").update({ status: "rejected", decided_by: name, decided_at: new Date().toISOString() }).eq("id", p.id);
+      if (error) throw error;
+      Object.assign(p, { status: "rejected", decided_by: name, decided_at: new Date().toISOString() }); renderProposals();
+      return;
+    }
+    let rid = p.rule_id;
+    if (p.kind === "add") {
+      if (!rid || state.house.some((r) => r.rule_id === rid)) rid = nextHouseId();
+      const { error } = await sb.from("house_rules").insert({ rule_id: rid, rule_text: p.rule_text, test: p.test || null, source: "House rule (learned from feedback)", active: true, created_by: name });
+      if (error) throw error;
+    } else if (p.kind === "modify") {
+      const patch = { rule_text: p.rule_text }; if (p.test) patch.test = p.test;
+      const { error } = await sb.from("house_rules").update(patch).eq("rule_id", rid); if (error) throw error;
+    } else if (p.kind === "retire") {
+      const { error } = await sb.from("house_rules").update({ active: false }).eq("rule_id", rid); if (error) throw error;
+    }
+    const now = new Date().toISOString();
+    const { error: pe } = await sb.from("rule_proposals").update({ status: "approved", decided_by: name, decided_at: now }).eq("id", p.id);
+    if (pe) throw pe;
+    const summary = `${name} approved: ${p.kind} ${rid}${p.rationale ? ". " + p.rationale : ""}`.slice(0, 300);
+    await loadHouse();
+    // Show the house rulebook so the new rule has somewhere to land
+    if (state.selected !== "house_rules") { state.selected = "house_rules"; state.editing = null; renderBooks(); renderHouse(); }
+    else renderHouse();
+    await flyInto(document.getElementById("prop-" + p.id), rid);
+    Object.assign(p, { status: "approved", decided_by: name, decided_at: now }); renderProposals();
+    await snapshot(summary, name);
+    renderBooks(); renderVersions(); renderHouse(); highlight(rid);
+    toast(`${rid} is now part of the house rules (v${currentVersion()}).`);
+  } catch (err) { toast(err.message || String(err)); b.closest(".row")?.querySelectorAll("button").forEach((x) => x.disabled = false); }
+});
+
+// The approved card flies across and merges into the house rulebook.
+function flyInto(card, rid) {
+  if (!card || reduced || !card.animate) return Promise.resolve();
+  const target = document.querySelector(`#house-list li[data-rid="${CSS.escape(rid)}"]`) || $("house-list") || $("book-house");
+  if (!target) return Promise.resolve();
+  target.scrollIntoView({ block: "nearest" });
+  const a = card.getBoundingClientRect(), t = target.getBoundingClientRect();
+  const fly = card.cloneNode(true);
+  fly.classList.add("flyer"); fly.removeAttribute("id");
+  Object.assign(fly.style, { left: a.left + "px", top: a.top + "px", width: a.width + "px", height: a.height + "px", overflow: "hidden" });
+  document.body.appendChild(fly);
+  card.style.visibility = "hidden";
+  const dx = t.left - a.left, dy = t.top - a.top, sx = Math.max(.15, t.width / a.width), sy = Math.max(.08, Math.min(t.height, 60) / a.height);
+  const anim = fly.animate([
+    { transform: "translate(0,0) scale(1)", opacity: 1, boxShadow: "0 0 0 0 rgba(47,122,75,0)" },
+    { transform: `translate(${dx * .45}px, ${dy * .45 - 40}px) scale(.8) rotate(-2deg)`, opacity: 1, boxShadow: "0 12px 30px rgba(0,0,0,.18)", offset: .45 },
+    { transform: `translate(${dx}px, ${dy}px) scale(${sx}, ${sy})`, opacity: 0, boxShadow: "0 0 0 4px rgba(47,122,75,.5)" }
+  ], { duration: 900, easing: "cubic-bezier(.5,0,.3,1)", fill: "forwards" });
+  return anim.finished.then(() => { fly.remove(); card.style.visibility = ""; }).catch(() => { fly.remove(); card.style.visibility = ""; });
+}
+
+// ---------- Regulatory updates ----------
+state.alerts = [];
+async function loadAlerts() {
+  const { data, error } = await sb.from("reg_alerts").select("*").order("detected_at", { ascending: false }).limit(50);
+  if (error) { state.alertsError = error.message; return; }
+  state.alerts = data || [];
+}
+function alertHtml(a, isNew) {
+  const ids = Array.isArray(a.rule_ids) ? a.rule_ids : (a.rule_ids ? [a.rule_ids] : []);
+  const book = a.rulebook ? (state.books.find((b) => b.id === a.rulebook) || {}).label || a.rulebook : "";
+  const st = a.status || "new";
+  const safeUrl = /^https?:\/\//i.test(a.url || "") ? a.url : "";
+  return `<li class="alert s-${esc(st)}${isNew ? " new-in" : ""}" data-aid="${a.id}">
+    <div class="meta"><span class="src">${esc(a.source || "Source")}</span><span>${when(a.detected_at)} <span class="astatus ${esc(st)}">${esc(st === "new" ? "New" : st === "reviewed" ? "Reviewed" : "Dismissed")}</span></span></div>
+    ${safeUrl ? `<a class="title" href="${esc(safeUrl)}" target="_blank" rel="noopener">${esc(a.title || safeUrl)}</a>` : `<span class="title">${esc(a.title || "Untitled change")}</span>`}
+    ${book || ids.length ? `<div class="aff"><span class="hint" style="margin:0">Affects</span>${book ? `<span class="pill">${esc(book)}</span>` : ""}${ids.map((r) => `<span class="rid">${esc(r)}</span>`).join(" ")}</div>` : ""}
+    ${a.summary ? `<p class="sum">${esc(a.summary)}</p>` : ""}
+    ${st === "new" ? `<div class="row" style="margin-top:8px"><button class="btn small" data-aact="reviewed" data-id="${a.id}">Mark reviewed</button><button class="btn ghost small" data-aact="dismissed" data-id="${a.id}">Dismiss</button></div>` : ""}
+  </li>`;
+}
+function renderAlerts(newId) {
+  if (state.alertsError && !state.alerts.length) { $("alerts").innerHTML = `<li class="empty">Could not load regulatory updates: ${esc(state.alertsError)}</li>`; return; }
+  const latest = state.alerts.reduce((m, a) => (a.detected_at && (!m || a.detected_at > m) ? a.detected_at : m), null);
+  $("lastcheck").textContent = latest ? "Last change detected " + when(latest) : "";
+  $("alerts").innerHTML = state.alerts.length ? state.alerts.map((a) => alertHtml(a, a.id === newId)).join("")
+    : `<li class="empty">No changes detected since the last check. Sources are checked on a schedule.</li>`;
+}
+$("alerts").addEventListener("click", async (e) => {
+  const b = e.target.closest("button[data-aact]"); if (!b) return;
+  const a = state.alerts.find((x) => x.id === +b.dataset.id); if (!a) return;
+  b.parentElement.querySelectorAll("button").forEach((x) => x.disabled = true);
+  const { error } = await sb.from("reg_alerts").update({ status: b.dataset.aact }).eq("id", a.id);
+  if (error) { toast(error.message); b.parentElement.querySelectorAll("button").forEach((x) => x.disabled = false); return; }
+  a.status = b.dataset.aact; renderAlerts();
+});
+
+// ---------- Realtime ----------
+function subscribe() {
+  sb.channel("rulebooks-page")
+    .on("postgres_changes", { event: "*", schema: "public", table: "learner_runs" }, ({ new: r }) => {
+      if (r && r.id && (!state.run || r.id >= state.run.id)) { state.run = r; renderRun(); }
+    })
+    .on("postgres_changes", { event: "*", schema: "public", table: "rule_proposals" }, ({ eventType, new: p }) => {
+      if (!p || !p.id) return;
+      const isNew = eventType === "INSERT" && !state.proposals.has(p.id);
+      const old = state.proposals.get(p.id);
+      if (old && old.status === "approved" && p.status !== "approved") return;
+      state.proposals.set(p.id, { ...(old || {}), ...p });
+      renderProposals(isNew ? p.id : null);
+    })
+    .on("postgres_changes", { event: "INSERT", schema: "public", table: "rulebook_versions" }, async ({ new: v }) => {
+      if (v.rulebook !== "house_rules" || state.versions.some((x) => x.version === v.version)) return;
+      await loadVersions(); await loadHouse(); renderBooks(); renderVersions();
+      if (state.selected === "house_rules" && !state.editing && !state.adding) renderHouse();
+    })
+    .on("postgres_changes", { event: "INSERT", schema: "public", table: "reg_alerts" }, ({ new: a }) => {
+      if (!a || !a.id || state.alerts.some((x) => x.id === a.id)) return;
+      state.alerts.unshift(a); renderAlerts(a.id);
+    })
+    .on("postgres_changes", { event: "UPDATE", schema: "public", table: "reg_alerts" }, ({ new: a }) => {
+      const i = a && a.id ? state.alerts.findIndex((x) => x.id === a.id) : -1;
+      if (i >= 0) { state.alerts[i] = { ...state.alerts[i], ...a }; renderAlerts(); }
+    })
+    .subscribe();
+}
+
+(async function init() {
+  $("book").innerHTML = `<p class="hint">Loading rules…</p>`;
+  await Promise.all([loadRegulatory(), loadHouse(), loadVersions(), loadProposals(), loadRun(), loadAlerts()]);
+  renderBooks(); renderBook(); renderVersions(); renderProposals(); renderRun(); renderAlerts();
+  subscribe();
+})();
+
+// ---------- Tabs: regulatory vs house rules ----------
+function setTab(t) {
+  state.tab = t;
+  $("tab-reg").setAttribute("aria-selected", t === "reg"); $("tab-house").setAttribute("aria-selected", t === "house");
+  document.querySelector(".regup").hidden = t !== "reg"; $("house-side").hidden = t !== "house";
+  document.querySelector(".reviewer").hidden = t !== "house";
+  $("books-hint").textContent = t === "reg" ? "Current regulatory rules, quoted from the official sources and watched for changes." : "Your firm's own rules. Edit, retire or approve changes learned from reviewer feedback.";
+  state.selected = t === "house" ? "house_rules" : (state.books[0] || {}).id;
+  state.editing = null; state.adding = false;
+  renderBooks(); renderBook();
+}
+$("tab-reg").onclick = () => setTab("reg");
+$("tab-house").onclick = () => setTab("house");
+
+// ---------- Reg Watch status ----------
+async function loadWatch() {
+  const { data } = await sb.from("monitor_runs").select("*").order("id", { ascending: false }).limit(1);
+  const r = (data || [])[0];
+  const el = $("watch-status"); const card = $("watch");
+  if (!r) { el.textContent = "Not checked yet. Runs every weekday at 07:00."; return; }
+  if (r.status === "pending" || r.status === "running") { el.textContent = "Checking the official sources and regulator feeds…"; $("watch-now").disabled = true; return; }
+  $("watch-now").disabled = false;
+  const when = new Date(r.finished_at || r.created_at).toLocaleString([], { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
+  card.classList.toggle("changed", (r.source_changes || 0) > 0);
+  el.textContent = r.status === "failed" ? `Last check failed (${when}). Try again.` :
+    `${r.summary}. ${r.sources_checked} official source pages checked, ${when}.`;
+}
+$("watch-now").onclick = async () => { await sb.from("monitor_runs").insert({ status: "pending", trigger: "manual" }); loadWatch(); };
+sb.channel("watch").on("postgres_changes", { event: "*", schema: "public", table: "monitor_runs" }, loadWatch).subscribe();
+
+loadWatch();
+setTimeout(() => setTab(state.tab || "reg"), 600);
+</script>
+</body>
+</html>

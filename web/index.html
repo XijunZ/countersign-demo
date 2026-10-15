@@ -1,0 +1,1236 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Countersign</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,600&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<style>
+:root {
+  --paper: #eef2ef; --panel: #f9fbfa; --ink: #18221f; --muted: #5b6b66; --rule: #cfd8d4;
+  --bench: #1e4d3f; --prosecution: #9e2b25; --defence: #2c5a85; --judge: #8c6a1f;
+  --amber: #b7791f; --pass: #2f7a4b; --clerk: #55606b;
+  --serif: "Newsreader", Georgia, serif; --sans: "Public Sans", system-ui, sans-serif;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body { margin: 0; background: var(--paper); color: var(--ink); font: 15px/1.5 var(--sans); }
+button, input, textarea, select { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--bench); outline-offset: 2px; }
+
+header { display: flex; align-items: center; gap: 24px; padding: 14px 24px; background: var(--bench); color: #fff; flex-wrap: wrap; }
+header h1 { margin: 0; font: 600 22px/1 var(--serif); letter-spacing: .01em; }
+header p { margin: 0; opacity: .8; font-size: 13px; }
+.score { margin-left: auto; display: flex; gap: 22px; }
+.score div { text-align: right; }
+.score b { display: block; font: 600 20px/1.1 var(--sans); font-variant-numeric: tabular-nums; }
+.score span { font-size: 12px; opacity: .8; }
+
+main { display: grid; grid-template-columns: 300px minmax(0, 1fr) 400px; gap: 0; min-height: calc(100vh - 60px); }
+section { padding: 18px 20px; border-right: 1px solid var(--rule); min-width: 0; }
+section:last-child { border-right: 0; }
+h2 { font: 600 16px/1.3 var(--sans); margin: 0 0 12px; }
+.hint { color: var(--muted); font-size: 13px; margin: 0 0 12px; }
+
+/* Case file */
+.drop { display: block; border: 1.5px dashed var(--muted); border-radius: 6px; padding: 22px 14px; text-align: center; background: var(--panel); cursor: pointer; }
+.drop.over { border-color: var(--bench); background: #e2ece7; }
+textarea { width: 100%; min-height: 120px; margin-top: 10px; padding: 10px; border: 1px solid var(--rule); border-radius: 6px; background: var(--panel); font: 14px/1.5 var(--serif); resize: vertical; }
+.btn { display: inline-block; padding: 8px 14px; border-radius: 6px; border: 1px solid var(--bench); background: var(--bench); color: #fff; font-weight: 600; cursor: pointer; }
+.btn.ghost { background: transparent; color: var(--bench); }
+.btn:disabled { opacity: .5; cursor: default; }
+.row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+.samples button { font-size: 13px; padding: 5px 10px; border: 1px solid var(--rule); border-radius: 4px; background: var(--panel); cursor: pointer; }
+.preview { margin-top: 16px; }
+.preview img { max-width: 100%; border: 1px solid var(--rule); border-radius: 4px; }
+.preview pre { white-space: pre-wrap; font: 13px/1.55 var(--serif); background: var(--panel); border: 1px solid var(--rule); border-radius: 6px; padding: 12px; max-height: 50vh; overflow: auto; }
+.status { margin-top: 14px; font-size: 13px; color: var(--muted); }
+select { width: 100%; padding: 6px; border: 1px solid var(--rule); border-radius: 4px; background: var(--panel); margin-top: 6px; }
+
+/* Courtroom: swimlanes */
+.lanes { border: 1px solid var(--rule); border-radius: 6px; background: var(--panel); overflow: hidden; }
+.lane { display: grid; grid-template-columns: 150px minmax(0, 1fr); border-top: 1px solid var(--rule); min-height: 44px; }
+.lane:first-child { border-top: 0; }
+.lane .who { padding: 8px 10px; font-size: 13px; font-weight: 600; border-left: 4px solid var(--c); display: flex; flex-direction: column; justify-content: center; }
+.lane .who small { font-weight: 400; color: var(--muted); font-size: 11.5px; }
+.lane.active .who { background: color-mix(in srgb, var(--c) 12%, transparent); }
+.lane.active .who::after { content: "working"; font: 500 11px var(--sans); color: var(--c); animation: blink 1.2s infinite; }
+@keyframes blink { 50% { opacity: .3; } }
+.track { display: flex; gap: 5px; align-items: center; padding: 6px 8px; overflow-x: auto; scrollbar-width: thin; }
+.chip { flex: none; border: 1px solid color-mix(in srgb, var(--c) 45%, transparent); color: var(--c); background: #fff; border-radius: 4px; padding: 2px 7px; font-size: 12px; white-space: nowrap; cursor: pointer; max-width: 260px; overflow: hidden; text-overflow: ellipsis; }
+.chip.new { animation: land .5s ease-out; }
+@keyframes land { from { transform: translateX(-12px); opacity: 0; } }
+.chip.retry { background: #fbf1df; border-color: var(--amber); color: #7a4e0c; }
+.chip.escalated, .chip.error { background: #f7e1df; border-color: var(--prosecution); color: var(--prosecution); font-weight: 600; }
+.chip.verified { background: #e3f0e7; border-color: var(--pass); color: var(--pass); }
+.chip.rejected { text-decoration: line-through; opacity: .75; }
+.chip.handoff::before { content: "\21AA  "; }
+.chip.done { background: var(--bench); color: #fff; border-color: var(--bench); }
+.chip:focus-visible, .chip.sel { outline: 2px solid var(--ink); }
+.detail { margin-top: 14px; border: 1px solid var(--rule); border-radius: 6px; background: var(--panel); padding: 12px; font-size: 13px; }
+.detail pre { white-space: pre-wrap; word-break: break-word; max-height: 260px; overflow: auto; font: 12px/1.45 ui-monospace, Menlo, monospace; background: #fff; padding: 8px; border-radius: 4px; border: 1px solid var(--rule); }
+.legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: 12px; color: var(--muted); margin: 10px 0 0; }
+.legend i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 5px; vertical-align: -1px; }
+
+/* Verdicts */
+.card { border: 1px solid var(--rule); border-left: 4px solid var(--v); background: var(--panel); border-radius: 6px; padding: 12px 14px; margin-bottom: 12px; }
+.card .top { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; }
+.verdict { font-weight: 700; font-size: 12px; color: var(--v); border: 1px solid var(--v); border-radius: 3px; padding: 0 6px; }
+.card blockquote { margin: 8px 0; font: 15px/1.5 var(--serif); padding-left: 10px; border-left: 2px solid var(--rule); }
+.card .rw { font: 15px/1.5 var(--serif); background: #e3f0e7; padding: 6px 10px; border-radius: 4px; margin: 6px 0; }
+.card details { font-size: 13px; margin-top: 6px; }
+.card details p { margin: 6px 0; }
+.p { color: var(--prosecution); font-weight: 600; } .d { color: var(--defence); font-weight: 600; } .j { color: var(--judge); font-weight: 600; }
+.amended { font: 14px/1.6 var(--serif); white-space: pre-wrap; background: #fff; border: 1px solid var(--rule); border-radius: 6px; padding: 14px; max-height: 60vh; overflow: auto; }
+.amended mark { background: #cfe6d6; padding: 0 2px; border-radius: 2px; }
+.amended mark.pending { background: transparent; outline: 1.5px dashed var(--judge); }
+.empty { color: var(--muted); font-size: 14px; border: 1px dashed var(--rule); border-radius: 6px; padding: 18px; }
+
+.rules { list-style: none; padding: 0; margin: 0 0 8px; font-size: 13px; }
+.rules li { display: flex; justify-content: space-between; gap: 8px; padding: 4px 0; border-bottom: 1px solid var(--rule); }
+.rules li span:last-child { color: var(--muted); white-space: nowrap; }
+.rules.house li { display: block; }
+details.house summary { cursor: pointer; font-size: 13px; font-weight: 600; padding: 4px 0; }
+#house-form input, .signoff input { width: 100%; padding: 6px 8px; margin-top: 6px; border: 1px solid var(--rule); border-radius: 4px; background: var(--panel); font-size: 13px; }
+.decide { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+.decide button { font-size: 12.5px; padding: 4px 9px; border-radius: 4px; border: 1px solid var(--rule); background: #fff; cursor: pointer; }
+.decide button.on { background: var(--bench); color: #fff; border-color: var(--bench); }
+.decided { font-size: 12px; color: var(--pass); margin-top: 6px; }
+.card textarea { min-height: 70px; margin-top: 6px; }
+.signoff { margin-top: 18px; border: 1px solid var(--rule); border-radius: 6px; padding: 14px; background: var(--panel); }
+.signoff label { font-size: 13px; font-weight: 600; display: block; }
+.stamp { margin-top: 10px; border: 2px solid var(--pass); color: var(--pass); border-radius: 6px; padding: 10px 12px; font-weight: 600; }
+.stamp.returned { border-color: var(--amber); color: #7a4e0c; }
+.stamp small { display: block; font-weight: 400; color: var(--muted); }
+.court-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+.court-head h2 { margin: 0; }
+.tabs { display: flex; border: 1px solid var(--rule); border-radius: 6px; overflow: hidden; }
+.tabs button { border: 0; background: var(--panel); padding: 5px 14px; font-size: 13px; cursor: pointer; }
+.tabs button[aria-selected="true"] { background: var(--bench); color: #fff; }
+.arch { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 14px; margin-bottom: 14px; align-items: start; }
+.node { position: relative; border: 1.5px solid color-mix(in srgb, var(--c) 40%, var(--rule)); border-top: 4px solid var(--c); border-radius: 6px; background: var(--panel); padding: 7px 8px; font-size: 12px; min-width: 0; transition: box-shadow .2s, background .2s; }
+.node b { display: block; font-size: 13px; color: var(--c); }
+.node small { display: block; color: var(--muted); font-size: 11px; line-height: 1.3; }
+.node:not(:last-child)::after { content: ""; position: absolute; right: -13px; top: 50%; width: 12px; border-top: 1.5px solid var(--muted); }
+.node.on, .node span.on { background: color-mix(in srgb, var(--c) 14%, #fff); box-shadow: 0 0 0 2px var(--c); }
+.node.retry { box-shadow: 0 0 0 3px var(--amber); }
+.node.alarm { box-shadow: 0 0 0 3px var(--prosecution); }
+.node i { position: absolute; top: 5px; right: 7px; font-style: normal; font-size: 11px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.node.stack span { display: inline-block; margin: 4px 3px 0 0; padding: 1px 5px; border: 1px solid var(--rule); border-radius: 3px; font-size: 10.5px; background: #fff; }
+.claimtabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
+.claimtabs button { border: 1px solid var(--rule); border-left: 4px solid var(--v, var(--rule)); background: var(--panel); border-radius: 4px; padding: 4px 9px; font-size: 12.5px; cursor: pointer; max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.claimtabs button[aria-pressed="true"] { background: var(--ink); color: #fff; }
+.thread { display: flex; flex-direction: column; gap: 10px; max-height: 64vh; overflow-y: auto; padding: 4px 2px 10px; }
+.msg { display: grid; grid-template-columns: 34px minmax(0, 1fr); gap: 10px; align-items: start; max-width: 92%; }
+.msg.right { align-self: flex-end; grid-template-columns: minmax(0, 1fr) 34px; }
+.msg.right .av { order: 2; }
+.msg.new { animation: land .45s ease-out; }
+.av { width: 34px; height: 34px; border-radius: 50%; background: var(--c); color: #fff; display: grid; place-items: center; font-weight: 700; font-size: 13px; }
+.bubble { background: #fff; border: 1px solid var(--rule); border-radius: 8px; padding: 8px 12px; font-size: 14px; }
+.msg.right .bubble { background: color-mix(in srgb, var(--c) 8%, #fff); }
+.bubble .who { font-size: 12px; font-weight: 600; color: var(--c); margin-bottom: 2px; }
+.bubble q { font: 14.5px/1.5 var(--serif); quotes: "\201C" "\201D"; background: #f6eceb; padding: 0 2px; }
+.bubble .fix { font: 14.5px/1.5 var(--serif); background: #e3f0e7; padding: 2px 6px; border-radius: 3px; display: block; margin-top: 4px; }
+.rd { display: inline-block; font-size: 11px; font-weight: 600; color: var(--muted); border: 1px solid var(--rule); border-radius: 3px; padding: 0 5px; margin-right: 4px; }
+.bubble .who small { font-weight: 400; color: var(--muted); }
+.rule { display: inline-block; border: 1px solid var(--c); color: var(--c); border-radius: 3px; padding: 0 5px; font-size: 12px; font-weight: 600; cursor: help; }
+.msg.system { max-width: 100%; align-self: center; grid-template-columns: 1fr; }
+.msg.system .bubble { background: transparent; border: 1px dashed var(--rule); color: var(--muted); font-size: 12.5px; text-align: center; }
+.msg.objection .bubble { border-color: var(--amber); background: #fbf1df; }
+.msg.ruling .bubble { border: 2px solid var(--judge); }
+@media (max-width: 1400px) { .arch { grid-template-columns: repeat(4, minmax(0, 1fr)); } .node::after { display: none; } }
+.docs { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.docs h3 { font: 600 13px var(--sans); margin: 0 0 6px; color: var(--muted); }
+.paper { background: #fff; border: 1px solid var(--rule); border-radius: 4px; padding: 18px 20px; font: 14px/1.6 var(--serif); max-height: 62vh; overflow: auto; }
+.paper h1 { font: 700 20px/1.25 var(--sans); color: var(--bench); margin: 0 0 8px; }
+.paper h2 { font: 700 15px/1.3 var(--sans); color: var(--bench); margin: 12px 0 6px; }
+.paper p { margin: 0 0 9px; } .paper ul { margin: 0 0 9px 18px; padding: 0; }
+.paper table { border-collapse: collapse; width: 100%; font-size: 12.5px; margin-bottom: 9px; }
+.paper td { border: 1px solid var(--rule); padding: 3px 6px; }
+.paper .hdr { font: 12.5px/1.5 var(--sans); color: var(--muted); border-bottom: 1px solid var(--rule); padding-bottom: 6px; margin-bottom: 10px; }
+.paper .pg { font: 11px var(--sans); color: var(--muted); border-top: 1px dashed var(--rule); margin: 10px 0; padding-top: 3px; }
+.paper mark.chg { background: #cfe6d6; } .paper mark.old { background: #f7e1df; } .paper mark.pending { background: transparent; outline: 1.5px dashed var(--judge); }
+.paper sup.n { font: 700 10px var(--sans); color: #fff; background: var(--judge); border-radius: 7px; padding: 0 4px; margin-left: 2px; }
+.tok { font: 600 11.5px var(--sans); color: var(--defence); background: #e4ecf4; border-radius: 3px; padding: 0 4px; }
+#orig-media img { max-width: 100%; max-height: 300px; object-fit: contain; display: block; border: 1px solid var(--rule); border-radius: 4px; margin-bottom: 8px; }
+.dl { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 12px; }
+.dl a { text-decoration: none; }
+@media (max-width: 900px) { .docs { grid-template-columns: 1fr; } }
+.nav { display: flex; gap: 4px; }
+.nav a { color: #fff; text-decoration: none; padding: 6px 12px; border-radius: 4px; font-weight: 600; font-size: 14px; opacity: .8; }
+.nav a[aria-current="page"], .nav a:hover { background: rgba(255,255,255,.14); opacity: 1; }
+.role { display: flex; border: 1px solid rgba(255,255,255,.4); border-radius: 5px; overflow: hidden; }
+.role button { background: transparent; color: #fff; border: 0; padding: 5px 10px; font-size: 13px; cursor: pointer; }
+.role button[aria-pressed="true"] { background: #fff; color: var(--bench); font-weight: 600; }
+.inputs { display: flex; flex-wrap: wrap; gap: 10px 18px; align-items: flex-end; padding: 12px 24px; background: var(--panel); border-bottom: 1px solid var(--rule); font-size: 13px; }
+.inputs label, .inputs fieldset { display: flex; flex-direction: column; gap: 3px; font-weight: 600; border: 0; padding: 0; margin: 0; }
+.inputs legend { font-weight: 600; padding: 0; margin-bottom: 3px; }
+.inputs select { width: auto; margin: 0; padding: 5px 6px; font-weight: 400; }
+.inputs fieldset span { display: flex; gap: 10px; flex-wrap: wrap; font-weight: 400; }
+.inputs fieldset label { flex-direction: row; align-items: center; gap: 4px; font-weight: 400; }
+.inputs fieldset.books span { max-width: 560px; }
+.inputs .detected { display: flex; flex-direction: column; gap: 3px; } .inputs .detected span { font-weight: 400; color: var(--muted); padding: 5px 0; }
+.inputs .upload { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.inputs .drop { padding: 7px 12px; font-size: 13px; }
+.inputs .status { margin: 0; flex-basis: 100%; }
+.pastebox textarea { min-height: 70px; width: 420px; max-width: 100%; }
+.replaybar { display: flex; gap: 6px; align-items: center; margin-left: auto; }
+.replaybar select { width: 260px; margin: 0; }
+.speed { display: flex; border: 1px solid var(--rule); border-radius: 4px; overflow: hidden; }
+.speed button { border: 0; background: #fff; padding: 5px 9px; cursor: pointer; font-size: 12.5px; }
+.speed button[aria-pressed="true"] { background: var(--bench); color: #fff; }
+main.grid { display: grid; grid-template-columns: minmax(0, 1fr) 420px; min-height: auto; }
+.stage section { border-right: 1px solid var(--rule); border-bottom: 1px solid var(--rule); }
+.docpanel .paper { max-height: 40vh; }
+.verbar { display: flex; gap: 8px; align-items: center; font-size: 12px; flex-wrap: wrap; }
+.docpanel .court-head { flex-wrap: wrap; gap: 6px; }
+.docpanel .verbar input { width: 140px; }
+.verbar input { width: 220px; }
+.verdicts { position: sticky; top: 0; max-height: 100vh; overflow-y: auto; }
+.who-input { display: block; font-size: 13px; font-weight: 600; margin-bottom: 10px; }
+.who-input input { width: 100%; padding: 6px 8px; margin-top: 4px; border: 1px solid var(--rule); border-radius: 4px; background: var(--panel); }
+.paper mark.flash { animation: flash 2.2s ease-out; }
+@keyframes flash { 0% { background: #f5d77a; box-shadow: 0 0 0 4px #f5d77a; } 100% { background: #cfe6d6; box-shadow: none; } }
+.fb { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; align-items: center; font-size: 12.5px; }
+.fb button { font-size: 12px; padding: 3px 8px; border: 1px solid var(--rule); background: #fff; border-radius: 4px; cursor: pointer; }
+.fb button.on { background: var(--ink); color: #fff; }
+.fb input { flex: 1; min-width: 120px; padding: 4px 6px; border: 1px solid var(--rule); border-radius: 4px; font-size: 12.5px; }
+.badge-paused { font-size: 11.5px; color: var(--prosecution); font-weight: 600; }
+@media (max-width: 1200px) { main.grid { grid-template-columns: 1fr; } .verdicts { position: static; max-height: none; } }
+.stage .arch { padding: 10px 20px 0; margin-bottom: 0; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 10px; }
+.stage .arch .node small { display: none; }
+.stage .arch .node.stack span { font-size: 10px; padding: 0 4px; }
+.split { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+.split > section { border-bottom: 0; }
+.split .paper, .split .thread, .split .tl { height: calc(100vh - 330px); min-height: 360px; max-height: none; overflow-y: auto; }
+.doctabs { margin-bottom: 8px; width: fit-content; }
+#orig-media img { max-height: 220px; }
+.tl { display: flex; flex-direction: column; gap: 2px; font-size: 12.5px; }
+.tlrow { display: grid; grid-template-columns: 78px 150px 110px minmax(0, 1fr); gap: 8px; text-align: left; border: 0; border-left: 3px solid var(--c); background: #fff; padding: 4px 8px; cursor: pointer; align-items: baseline; }
+.tlrow time { font-variant-numeric: tabular-nums; color: var(--muted); } .tlrow time small { display: block; font-size: 10.5px; }
+.tlrow b { color: var(--c); font-weight: 600; } .tlrow .st { color: var(--muted); }
+.tlrow .msg small { color: var(--muted); } .tlrow .cost { grid-column: 4; color: var(--muted); font-size: 11px; }
+.tlrow.retry { background: #fbf1df; } .tlrow.escalated, .tlrow.error { background: #f7e1df; } .tlrow.verified { background: #eef6f0; }
+.tlrow.sel { outline: 2px solid var(--ink); }
+@media (max-width: 1300px) { .split { grid-template-columns: 1fr; } .stage .arch { grid-template-columns: repeat(4, minmax(0,1fr)); } }
+.me { display: flex; gap: 8px; align-items: center; margin-left: 8px; }
+.me .av { width: 32px; height: 32px; border-radius: 50%; background: #fff; color: var(--bench); display: grid; place-items: center; font-weight: 700; font-size: 12px; }
+.me b { display: block; font-size: 13px; } .me small { font-size: 11.5px; opacity: .8; }
+.summary { display: flex; gap: 14px; align-items: center; padding: 8px 24px; background: var(--panel); border-bottom: 1px solid var(--rule); font-size: 13px; }
+.summary span { flex: 1; }
+.inputs.dragover { outline: 2px dashed var(--bench); outline-offset: -6px; }
+.samples button { cursor: pointer; }
+.mail { border: 1px solid var(--rule); border-radius: 6px; background: #fff; margin-bottom: 12px; font-size: 13px; overflow: hidden; }
+.mail .mh { background: var(--panel); padding: 8px 12px; border-bottom: 1px solid var(--rule); color: var(--muted); line-height: 1.5; }
+.mail .mh b { color: var(--ink); }
+.mail .mb { padding: 10px 12px; }
+.mail .mb p { margin: 0 0 8px; }
+.mail .row { margin-top: 6px; }
+main.grid { grid-template-columns: minmax(0, 1fr); }
+.stage { display: grid; grid-template-rows: auto auto 1fr; }
+.split { grid-template-columns: 1fr; }
+.docpanel { padding-bottom: 8px; }
+.docs2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.docs2 h3 { font: 600 13px var(--sans); margin: 0 0 6px; color: var(--muted); }
+.split .docpanel .paper { height: 30vh; min-height: 200px; }
+.split .thread, .split .tl { height: 52vh; }
+.docs2 #orig-media img { max-height: 120px; }
+.paper mark { cursor: pointer; }
+.drawer { position: fixed; top: 0; right: 0; width: 440px; max-width: 100vw; height: 100vh; background: var(--paper); box-shadow: -8px 0 24px rgba(24, 34, 31, .18); z-index: 20; transform: translateX(105%); transition: transform .25s ease; overflow-y: auto; max-height: none; }
+.drawer.open { transform: none; }
+.drawer .card.focus { outline: 2px solid var(--judge); }
+.alertbtn { margin-left: auto; }
+details.books summary { cursor: pointer; font-weight: 600; }
+details.books span { margin-top: 6px; }
+@media (prefers-reduced-motion: reduce) { .drawer { transition: none; } }
+.courtbtn { display: flex; align-items: center; gap: 12px; background: none; border: 0; padding: 0; cursor: pointer; text-align: left; flex: 1; min-width: 0; }
+.courtbtn h2 { margin: 0; }
+.ticker { font-size: 13px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ticker.live::before { content: ""; display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--prosecution); margin-right: 6px; animation: blink 1.2s infinite; }
+.chev { transition: transform .2s; color: var(--muted); }
+.court-collapsed .chev { transform: rotate(-90deg); }
+.court-collapsed #court-body, .court-collapsed .tabs, .court-collapsed .arch { display: none; }
+.court-collapsed .split .docpanel .paper { height: calc(100vh - 330px); }
+.risk { font: 700 11.5px var(--sans); border-radius: 3px; padding: 1px 7px; color: #fff; margin-right: 6px; white-space: nowrap; }
+.risk.high { background: var(--prosecution); } .risk.medium { background: var(--amber); } .risk.low { background: var(--pass); }
+.card .top { align-items: center; }
+.paper sup.n.r-high { background: var(--prosecution); box-shadow: 0 0 0 2px #f7e1df; } .paper sup.n.r-medium { background: var(--amber); } .paper sup.n.r-low { background: var(--pass); }
+.phrases { display: flex; flex-direction: column; gap: 4px; margin: 4px 0 6px; }
+.phrase { text-align: left; font: 13px/1.4 var(--serif); background: #fff; border: 1px solid var(--rule); border-radius: 4px; padding: 4px 8px; cursor: pointer; }
+.phrase:hover { border-color: var(--bench); } .phrase b { font: 600 10.5px var(--sans); color: var(--bench); }
+@media (max-width: 1100px) { main { grid-template-columns: 1fr; } section { border-right: 0; border-bottom: 1px solid var(--rule); } .score { margin-left: 0; } }
+@media (max-width: 600px) { header, section { padding-left: 16px; padding-right: 16px; } .lane { grid-template-columns: 110px minmax(0,1fr); } }
+@media (prefers-reduced-motion: reduce) { .chip.new, .lane.active .who::after { animation: none; } }
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>Countersign</h1>
+    <p>Compliance review built into marketing. Agents argue every claim; a human signs off.</p>
+  </div>
+  <div class="me" id="me" title="Signed in with company SSO (demo)"><span class="av" id="me-av">SP</span><span><b id="me-name">Sam Patel</b><small id="me-role">Marketing manager · Larkspire (demo)</small></span></div>
+  <div class="role" role="group" aria-label="Switch demo user">
+    <button id="role-compliance" aria-pressed="true">Compliance</button><button id="role-marketing" aria-pressed="false">Marketing</button>
+  </div>
+  <div class="score" aria-live="polite">
+    <div><b id="s-claims">0</b><span>claims</span></div>
+    <div><b id="s-verdicts">0 / 0 / 0</b><span>pass / fix / escalate</span></div>
+    <div><b id="s-calls">0</b><span>agent calls</span></div>
+    <div><b id="s-cost">$0.000</b><span>cost</span></div>
+    <div><b id="s-time">0s</b><span>elapsed</span></div>
+  </div>
+  <nav style="margin-left:12px" class="nav" aria-label="Pages">
+    <a href="/" aria-current="page">Review</a><a href="web/rulebooks.html">Rulebooks</a><a href="web/history.html">Register</a>
+  </nav>
+</header>
+
+<div class="summary" id="summary" hidden><span id="sum-text"></span><button class="btn" type="button" id="open-drawer">Review and release</button><button class="btn ghost" type="button" id="new-review">New review</button></div>
+<form class="inputs" id="inputs" onsubmit="return false">
+  <fieldset><legend>Distributed in</legend><span id="set-markets"></span></fieldset>
+  <label>Audience<select id="set-aud"><option value="retail">Retail investors</option><option value="professional">Professional investors only</option><option value="">Let the agents infer</option></select></label>
+  <div class="detected"><b>Material</b><span id="set-chan">Detected when you add a file</span></div>
+  <details class="books"><summary id="books-sum">Rulebooks: chosen from the markets</summary><span id="set-books"></span></details>
+  <div class="upload">
+    <input type="file" id="file" accept=".txt,.md,.eml,.png,.jpg,.jpeg,.webp,.pdf" hidden>
+    <button class="btn" id="upload" type="button">Upload material</button>
+    <span class="hint">or try a sample:</span><span class="samples" id="samples"></span>
+    <span id="drop" hidden></span><button id="go" hidden></button>
+  </div>
+  <div class="status" id="status" role="status"></div>
+  <details class="pastebox"><summary>Paste text instead</summary><textarea id="paste" placeholder="Paste the promotion text"></textarea><button class="btn ghost" type="button" id="paste-go">Review pasted text</button></details>
+  <div class="replaybar">
+    <select id="history" aria-label="Open an earlier review"><option value="">Open an earlier review</option></select>
+    <button class="btn ghost" id="replay" disabled>Replay</button>
+    <span class="speed" role="group" aria-label="Replay speed"><button data-s="1" aria-pressed="true">1×</button><button data-s="2" aria-pressed="false">2×</button><button data-s="4" aria-pressed="false">4×</button></span>
+  </div>
+  <div class="preview" id="preview" hidden></div>
+</form>
+
+<main class="grid">
+  <div class="stage">
+    <div class="split">
+    <section class="docpanel" aria-labelledby="h-doc">
+      <div class="court-head">
+        <h2 id="h-doc">Document</h2>
+        <div class="verbar"><label for="ver">Version</label><input type="range" id="ver" min="0" max="0" value="0"><span id="ver-label" class="hint">Live</span></div>
+      </div>
+      <div class="dl" id="downloads"><span class="hint">After sign-off: approved copy, redline and email draft, with personal data restored.</span></div>
+      <div class="docs2">
+        <div id="orig-wrap"><h3>Original</h3><div id="orig-media"></div><div class="paper" id="doc-orig"><span class="hint">Upload material to start.</span></div></div>
+        <div><h3>Current version <small id="cur-note" class="hint"></small> <small class="hint">Click a highlighted change to review it.</small></h3><div class="paper" id="doc-new"></div></div>
+      </div>
+      <span id="dt-new" hidden></span><span id="dt-orig" hidden></span>
+    </section>
+    <section aria-labelledby="h-court">
+      <div class="court-head">
+        <button type="button" class="courtbtn" id="court-toggle" aria-expanded="true" aria-controls="court-body"><h2 id="h-court">Courtroom</h2><span class="ticker" id="ticker">Watch the agents argue each claim</span><span class="chev" aria-hidden="true">▾</span></button>
+        <div class="tabs" role="tablist">
+          <button role="tab" id="tab-debate" aria-selected="true">Debate</button>
+          <button role="tab" id="tab-timeline" aria-selected="false">Timeline</button>
+        </div>
+      </div>
+      <div id="court-body">
+      <div class="arch" id="arch" aria-label="Agent architecture, live">
+        <div class="node" data-n="redactor" style="--c:var(--clerk)"><b>Tokeniser</b><small>Haiku 5.5 · hides personal data</small><i></i></div>
+        <div class="node" data-n="orchestrator" style="--c:var(--bench)"><b>Orchestrator</b><small>Sonnet 5.5 · splits into claims</small><i></i></div>
+        <div class="node stack" style="--c:var(--prosecution)"><b>Prosecutors</b><small>Sonnet 5.5 · confer, then argue</small>
+          <span data-n="prosecutor:fair_clear">Fair &amp; clear</span><span data-n="prosecutor:risk_warnings">Risk</span><span data-n="prosecutor:performance">Performance</span><span data-n="prosecutor:status_audience">Status</span><span data-n="prosecutor:eu_esma">EU</span><span data-n="prosecutor:us_sec">US</span><span data-n="prosecutor:house_rules">House</span></div>
+        <div class="node" data-n="defender" style="--c:var(--defence)"><b>Defender</b><small>GPT-6.1 Sol · argues for marketing</small><i></i></div>
+        <div class="node" data-n="clerk" style="--c:var(--clerk)"><b>Clerk</b><small>Code · quotes and rule IDs</small><i></i></div>
+        <div class="node" data-n="judge" style="--c:var(--judge)"><b>Judge</b><small>Gemini 4 Argon · rules after the debate</small><i></i></div>
+        <div class="node" data-n="fact_checker" style="--c:var(--amber)"><b>Fact-checker</b><small>Haiku 5.5 · checks every argument</small><i></i></div>
+        <div class="node" data-n="human" style="--c:var(--ink)"><b>You</b><small>Decide and sign off</small><i></i></div>
+      </div>
+
+      <div id="debate-view">
+        <div class="claimtabs" id="claimtabs"><span class="hint">Claims appear here once the orchestrator has read the document.</span></div>
+        <div class="thread" id="thread" aria-live="polite"></div>
+      </div>
+      <div id="timeline-view" hidden>
+        <div class="tl" id="tl" role="log" aria-label="Timestamped event log"></div>
+        <div class="lanes" id="lanes" hidden></div>
+        <div class="legend">
+          <span><i style="background:var(--amber)"></i>retry or remand</span>
+          <span><i style="background:var(--prosecution)"></i>escalated to a human</span>
+          <span><i style="background:var(--pass)"></i>finding upheld</span>
+          <span><i style="background:var(--clerk)"></i>code check (no AI)</span>
+        </div>
+        <div class="detail" id="detail"><span class="hint">Select any event to see the full prompt, response, tokens and cost.</span></div>
+      </div>
+      </div>
+    </section>
+    </div>
+  </div>
+
+  <section aria-labelledby="h-verdicts" class="verdicts drawer" id="drawer">
+    <div class="court-head"><h2 id="h-verdicts">Review and release</h2><button class="btn ghost" type="button" id="drawer-close">Close</button></div>
+    <input id="reviewer" type="hidden">
+    <div id="alert"></div>
+    <div id="cards"><div class="empty">Verdicts appear here claim by claim as the judge rules.</div></div>
+    <div class="signoff" id="signoff" hidden>
+      <h2>Sign-off</h2>
+      <p class="hint" id="so-progress"></p>
+      <textarea id="so-note" placeholder="Note for marketing (optional)"></textarea>
+      <div class="row">
+        <button class="btn" id="approve" disabled>Approve for publication</button>
+        <button class="btn ghost" id="return">Return to marketing</button>
+      </div>
+      <div id="so-result" role="status"></div>
+    </div>
+    <div class="row"><button class="btn ghost" id="download" disabled>Download audit record</button></div>
+  </section>
+</main>
+
+<div hidden aria-hidden="true">
+  <div id="amended"></div><ul id="reg-rules"></ul><ul id="house-rules"></ul><span id="house-sum"></span>
+  <form id="house-form"><input id="hr-text"><input id="hr-test"></form>
+</div>
+
+<script>
+const CFG = window.COURTROOM || {};
+const sb = supabase.createClient(CFG.SUPABASE_URL, CFG.SUPABASE_ANON_KEY);
+const $ = (id) => document.getElementById(id);
+
+const LANES = [
+  ["redactor", "Redactor", "masks personal data", "var(--clerk)"],
+  ["orchestrator", "Orchestrator", "finds the claims", "var(--bench)"],
+  ["prosecutor:fair_clear", "Prosecutor", "fair, clear, not misleading", "var(--prosecution)"],
+  ["prosecutor:risk_warnings", "Prosecutor", "risk warnings", "var(--prosecution)"],
+  ["prosecutor:performance", "Prosecutor", "performance claims", "var(--prosecution)"],
+  ["prosecutor:status_audience", "Prosecutor", "status and audience", "var(--prosecution)"],
+  ["prosecutor:house_rules", "Prosecutor", "your house rules", "var(--prosecution)"],
+  ["defender", "Defender", "argues for the marketer", "var(--defence)"],
+  ["clerk", "Clerk", "checks quotes and rule IDs", "var(--clerk)"],
+  ["judge", "Judge", "rules on each claim", "var(--judge)"],
+];
+const SAMPLES = [
+  ["Fund email", "fund_email.txt"], ["PE brochure", "pe_brochure.pdf"],
+  ["Social ad", "social_ad.png"], ["Clean email", "clean_email.txt"],
+];
+
+let job = null, channel = null, seen = new Set(), active = {}, events = [], findings = [], t0 = null, timer = null, pending = null;
+
+function buildLanes() {
+  $("lanes").innerHTML = LANES.map(([k, n, s, c]) =>
+    `<div class="lane" id="lane-${css(k)}" style="--c:${c}"><div class="who">${n}<small>${s}</small></div><div class="track"></div></div>`).join("");
+}
+const css = (k) => k.replace(/[^a-z_]/gi, "-");
+const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+function reset() {
+  seen = new Set(); active = {}; events = []; findings = []; t0 = null; clearInterval(timer);
+  currentClaim = null; pinnedClaim = false; claimList = []; resetArch(); ruled.clear(); versions = []; verPinned = false; syncSlider();
+  $("claimtabs").innerHTML = '<span class="hint">Claims appear here once the orchestrator has read the document.</span>'; $("thread").innerHTML = "";
+  buildLanes(); tlStart = null; $("tl").innerHTML = "";
+  $("cards").innerHTML = '<div class="empty">Verdicts appear here claim by claim as the judge rules.</div>';
+  $("amended").innerHTML = '<div class="empty">The rewrites you accept are applied here once the review finishes.</div>';
+  $("download").disabled = true; jobRow = null; decisions = {}; $("signoff").hidden = true; $("so-result").innerHTML = "";
+  $("orig-media").innerHTML = ""; delete $("orig-media").dataset.f; $("doc-orig").innerHTML = ""; $("doc-new").innerHTML = "";
+  $("orig-media").innerHTML = ""; delete $("orig-media").dataset.f; $("doc-orig").innerHTML = ""; $("doc-new").innerHTML = "";
+  ["s-claims", "s-cost", "s-time"].forEach((id) => ($(id).textContent = id === "s-cost" ? "$0.000" : id === "s-time" ? "0s" : "0"));
+  $("s-verdicts").textContent = "0 / 0 / 0";
+}
+
+const CHIP = {
+  agent_finished: (e) => e.tokens_in ? `$${(+e.cost).toFixed(3)} · ${(e.latency_ms / 1000).toFixed(1)}s` : e.message,
+  agent_started: null,
+};
+function chipClass(t) {
+  return { retry: "retry", escalated: "escalated", error: "error", finding_verified: "verified", finding_rejected: "rejected", handoff: "handoff", job_done: "done" }[t] || "";
+}
+function laneFor(e) {
+  if (e.agent === "worker") return "orchestrator";
+  return LANES.some(([k]) => k === e.agent) ? e.agent : "orchestrator";
+}
+
+function addEvent(e, animate = true) {
+  if (seen.has(e.id)) return; seen.add(e.id); events.push(e);
+  if (!t0) { t0 = new Date(e.created_at); startClock(); }
+  const lane = laneFor(e);
+  const isWrapperRetry = e.step_type === "retry" && e.payload && (e.payload.error || e.payload.raw);
+  if (e.step_type === "agent_started") active[lane] = (active[lane] || 0) + 1;
+  if (e.step_type === "agent_finished" && e.tokens_in) active[lane] = Math.max(0, (active[lane] || 0) - 1);
+  if (isWrapperRetry || (e.step_type === "error" && e.agent !== "worker")) active[lane] = Math.max(0, (active[lane] || 0) - 1);
+  document.querySelectorAll(".lane").forEach((el) => el.classList.toggle("active", (active[el.id.slice(5).replace(/-/g, ":")] || 0) > 0));
+  for (const [k] of LANES) { const el = $(`lane-${css(k)}`); el && el.classList.toggle("active", (active[k] || 0) > 0); }
+
+  addTimeline(e);
+  if (e.step_type !== "agent_started") {
+    const label = (CHIP[e.step_type] ? CHIP[e.step_type](e) : e.message) || e.step_type;
+    const chip = document.createElement("button");
+    chip.className = `chip ${chipClass(e.step_type)} ${animate ? "new" : ""}`;
+    chip.textContent = label; chip.title = `${e.step_type}: ${e.message}`;
+    chip.onclick = () => showDetail(e, chip);
+    const track = $(`lane-${css(lane)}`).querySelector(".track");
+    track.appendChild(chip); track.scrollLeft = track.scrollWidth;
+  }
+  score(); updateArch(e); onDebateEvent(e, animate); tick(e);
+  if (e.step_type === "job_done" || (e.step_type === "error" && e.agent === "worker")) { clearInterval(timer); for (const k in active) active[k] = 0; document.querySelectorAll(".lane").forEach((l) => l.classList.remove("active")); loadJob(); }
+}
+
+function showDetail(e, chip) {
+  document.querySelectorAll(".chip.sel").forEach((c) => c.classList.remove("sel")); chip.classList.add("sel");
+  const meta = e.tokens_in ? `<p>${e.tokens_in} tokens in, ${e.tokens_out} out, ${e.latency_ms} ms, $${(+e.cost).toFixed(4)}, attempt ${e.attempt}</p>` : `<p>attempt ${e.attempt}</p>`;
+  $("detail").innerHTML = `<b>${esc(e.agent)}</b>: ${esc(e.step_type)}<p>${esc(e.message)}</p>${meta}<pre>${esc(JSON.stringify(e.payload, null, 2))}</pre>`;
+}
+
+function startClock() { clearInterval(timer); timer = setInterval(() => { if (t0) $("s-time").textContent = `${Math.round((Date.now() - t0) / 1000)}s`; }, 500); }
+
+function score() {
+  const cost = events.reduce((s, e) => s + (+e.cost || 0), 0);
+  $("s-cost").textContent = `$${cost.toFixed(3)}`;
+  $("s-calls").textContent = events.filter((e) => e.step_type === "agent_started").length;
+  const plan = events.find((e) => e.step_type === "plan_created");
+  if (plan) $("s-claims").textContent = (plan.payload.claims || []).length;
+  const done = events.find((e) => e.step_type === "job_done");
+  if (done) { $("s-time").textContent = `${Math.round(done.payload.seconds)}s`; }
+}
+
+let jobRow = null, decisions = {};
+const REG = [["fair_clear", "Fair, clear, not misleading"], ["risk_warnings", "Risk warnings"], ["performance", "Performance claims"], ["status_audience", "Status and audience"]];
+
+function claimsByVerdict() {
+  const by = {};
+  for (const f of findings) (by[f.claim] ||= []).push(f);
+  for (const c in by) { const last = by[c].reduce((m, f) => (f.created_at > m ? f.created_at : m), ""); by[c] = by[c].filter((f) => f.created_at === last); }
+  return by;
+}
+const reviewable = () => jobRow && ["done", "needs_review"].includes(jobRow.status);
+const signedOff = () => jobRow && jobRow.approval_status === "approved";
+
+function renderCards() {
+  const claims = Object.entries(claimsByVerdict());
+  if (!claims.length) return;
+  const counts = { pass: 0, fix: 0, escalate: 0 };
+  $("cards").innerHTML = claims.map(([claim, fs], idx) => {
+    const v = fs[0].verdict; counts[v]++;
+    const colour = { pass: "var(--pass)", fix: "var(--judge)", escalate: "var(--prosecution)" }[v];
+    const charges = fs.filter((f) => f.rule_id);
+    const rules = charges.filter((f) => f.status === "verified" || f.status === "escalated").map((f) => f.rule_id);
+    const d = decisions[claim];
+    let controls = "";
+    if (v !== "pass" && reviewable() && !signedOff()) {
+      const on = (k) => (d && d.decision === k ? "on" : "");
+      controls = role === "compliance"
+        ? `<div class="decide" data-i="${idx}">
+            ${v === "fix" ? `<button class="${on("accept")}" data-act="accept">Accept</button>` : ""}
+            <button class="${on("edit")}" data-act="edit">${v === "fix" ? "Edit" : "Write wording"}</button>
+            <button class="${on("keep")}" data-act="keep">${v === "fix" ? "Reject" : "Keep original"}</button>
+            ${v === "escalate" ? '<button data-act="guide">Ask the agents</button>' : ""}
+           </div>
+           <div class="editbox" id="edit-${idx}" hidden>
+           ${phraseOptions(fs).length ? `<p class="hint">Approved phrases for ${esc((jobRow?.settings?.markets || ["UK"]).join(", "))}. Click to add:</p><div class="phrases">${phraseOptions(fs).map((p) => `<button type="button" class="phrase" data-phrase="${esc(p.text)}" title="${esc(p.source || "")}">${p.prescribed ? "<b>Prescribed</b> " : ""}${esc(p.text)}</button>`).join("")}</div>` : ""}
+           <textarea>${esc(d?.final_text || fs[0].suggested_rewrite || claim)}</textarea>
+           <div class="row"><button class="btn ghost" data-act="save" data-i="${idx}">Save wording</button></div></div>
+           <div class="editbox" id="guide-${idx}" hidden><textarea placeholder="Tell the agents what they're missing, e.g. the figures are net of fees"></textarea>
+           <div class="row"><button class="btn ghost" data-act="sendguide" data-i="${idx}">Send to the agents</button></div></div>`
+        : `<div class="decide" data-i="${idx}"><button data-act="contest">Contest</button></div>
+           <div class="editbox" id="contest-${idx}" hidden><textarea placeholder="Why should the original wording stand?"></textarea>
+           <div class="row"><button class="btn ghost" data-act="sendcontest" data-i="${idx}">Send to the judge</button></div></div>`;
+    }
+    const stamp = d ? `<div class="decided">${{ accept: "Rewrite accepted", edit: "Edited wording saved", keep: "Original kept" }[d.decision]} by ${esc(d.decided_by)}, ${new Date(d.decided_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</div>` : "";
+    return `<article class="card" style="--v:${colour}">
+      <div class="top">${riskBadge(riskOf(fs))}<span>${rules.length ? esc(rules.join(", ")) : "No rule breached"}</span><span class="verdict">${v === "fix" ? "Fix" : v === "pass" ? "Pass" : "Escalate"}</span></div>
+      <blockquote>${esc(claim)}</blockquote>
+      ${v === "fix" && fs[0].suggested_rewrite ? `<div class="rw">${esc(d && d.decision === "edit" ? d.final_text : fs[0].suggested_rewrite)}</div>` : ""}
+      ${controls}${stamp}
+
+      <details><summary>Arguments and ruling</summary>
+        ${charges.map((f) => `<p><span class="p">Prosecution, ${esc(f.rule_id)} (${esc(f.severity)}${f.status === "rejected" ? ", dismissed" : ""}):</span> ${esc(f.prosecution_argument)}</p>`).join("")}
+        <p><span class="d">Defence:</span> ${esc(fs[0].defence_argument)}</p>
+        <p><span class="j">Judge:</span> ${esc(fs[0].verdict_reasoning)}</p>
+      </details></article>`;
+  }).join("");
+  $("s-verdicts").textContent = `${counts.pass} / ${counts.fix} / ${counts.escalate}`;
+  renderFinal();
+}
+
+$("cards").addEventListener("click", async (e) => {
+  const ph = e.target.closest(".phrase");
+  if (ph) { const ta = ph.closest(".editbox").querySelector("textarea"); ta.value = `${ta.value.trim()} ${ph.dataset.phrase}`.trim(); ta.focus(); return; }
+  const fbk = e.target.dataset.fb;
+  if (fbk) {
+    const box = e.target.closest(".fb"); const [claim, fs] = Object.entries(claimsByVerdict())[+box.dataset.i];
+    const comment = box.querySelector("input").value.trim();
+    if ((fbk === "contest" || fbk === "guide") && !comment) { box.querySelector("input").focus(); return; }
+    await sendFeedback(claim, fs, fbk === "agree" ? "agree" : "disagree", comment, fbk === "contest");
+    e.target.classList.add("on"); box.querySelector("input").value = ""; nodeFor("human")?.classList.add("on");
+    return;
+  }
+  const act = e.target.dataset.act; if (!act) return;
+  const box = e.target.closest("[data-i]") || e.target;
+  const idx = +box.dataset.i;
+  const [claim, fs] = Object.entries(claimsByVerdict())[idx];
+  if (act === "edit") { $(`edit-${idx}`).hidden = false; $(`edit-${idx}`).querySelector("textarea").focus(); return; }
+  if (act === "guide" || act === "contest") { const el = $(`${act}-${idx}`); el.hidden = false; el.querySelector("textarea").focus(); return; }
+  if (act === "sendguide" || act === "sendcontest") {
+    const el = $(`${act === "sendguide" ? "guide" : "contest"}-${idx}`); const txt = el.querySelector("textarea").value.trim();
+    if (!txt) return el.querySelector("textarea").focus();
+    await sendFeedback(claim, fs, "disagree", txt, act === "sendcontest", act === "sendguide");
+    el.hidden = true; return;
+  }
+  if (act === "save") return decide(claim, "edit", $(`edit-${idx}`).querySelector("textarea").value.trim());
+  if (act === "accept") return decide(claim, "accept", fs[0].suggested_rewrite);
+  if (act === "keep") return decide(claim, "keep", claim);
+});
+
+function reviewer() { return $("reviewer").value.trim(); }
+async function decide(claim, decision, text) {
+  if (!reviewer()) { $("so-progress").textContent = "Add your name as reviewer first, so each decision is attributed."; $("reviewer").focus(); return; }
+  const row = { job_id: job, claim, decision, final_text: text, decided_by: reviewer(), decided_at: new Date().toISOString() };
+  const { data, error } = await sb.from("decisions").upsert(row, { onConflict: "job_id,claim" }).select().single();
+  if (error) { $("so-progress").textContent = `Could not save the decision: ${error.message}`; return; }
+  decisions[claim] = data; renderCards(); renderDebate(); nodeFor("human")?.classList.add("on");
+  const fs = claimsByVerdict()[claim] || [];  // every decision doubles as feedback for the rule learner
+  const top = fs.find((f) => f.rule_id) || fs[0] || {};
+  sb.from("feedback").insert({ job_id: job, claim, rule_id: top.rule_id, verdict: top.verdict, rating: decision === "accept" ? "agree" : "disagree",
+    comment: decision === "edit" ? `Compliance rewrote it as: ${text}` : decision === "keep" ? "Compliance rejected the change and kept the original." : null, role: "compliance", created_by: reviewer() }).then(() => {});
+}
+
+function replaceQuote(text, quote, rep) {
+  if (text.includes(quote)) return text.split(quote).join(rep);
+  const pat = quote.trim().split(/\s+/).map((w) => w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("\\s+");
+  return text.replace(new RegExp(pat), rep);
+}
+function finalText(markup = false) {
+  let t = jobRow?.document_text || jobRow?.amended_text || "";
+  const marks = [];
+  for (const [claim, fs] of Object.entries(claimsByVerdict())) {
+    const d = decisions[claim];
+    let rep = null, cls = "";
+    if (d && d.decision !== "keep") rep = d.final_text;
+    else if (!d && fs[0].verdict === "fix" && markup) { rep = fs[0].suggested_rewrite; cls = "pending"; }
+    if (rep) { const token = `\u0000${marks.length}\u0000`; marks.push([rep, cls]); t = replaceQuote(t, claim, token); }
+  }
+  if (!markup) return t.replace(/\u0000(\d+)\u0000/g, (_, i) => marks[i][0]);
+  return esc(t).replace(/\u0000(\d+)\u0000/g, (_, i) => `<mark class="${marks[i][1]}">${esc(marks[i][0])}</mark>`);
+}
+
+function renderFinal() {
+  if (!jobRow || !(jobRow.document_text || jobRow.amended_text)) return;
+  renderDocument();
+  $("amended").innerHTML = `<div class="amended">${finalText(true)}</div><p class="hint">Green: accepted wording. Dashed: proposed rewrite still waiting for a decision.</p>`;
+  const needed = Object.entries(claimsByVerdict()).filter(([, fs]) => fs[0].verdict !== "pass").map(([c]) => c);
+  const done = needed.filter((c) => decisions[c]).length;
+  $("signoff").hidden = !reviewable();
+  if (signedOff() || jobRow.approval_status === "returned") {
+    $("approve").disabled = true;
+    const ret = jobRow.approval_status === "returned";
+    $("so-result").innerHTML = `<div class="stamp ${ret ? "returned" : ""}">${ret ? "Returned to marketing" : "Approved for publication"} by ${esc(jobRow.approved_by)}
+      <small>${new Date(jobRow.approved_at).toLocaleString()} · review ${esc(job.slice(0, 8))} · rules ${esc(Object.values(jobRow.rules_version || {}).join("/"))}</small>
+      ${jobRow.approval_note ? `<small>Note: ${esc(jobRow.approval_note)}</small>` : ""}</div>`;
+  } else {
+    $("so-result").innerHTML = "";
+    $("approve").disabled = done < needed.length || !reviewer();
+  }
+  $("so-progress").textContent = needed.length ? `${done} of ${needed.length} flagged claims decided.` : "No claims need a decision.";
+  $("download").disabled = false;
+}
+
+async function signOff(status) {
+  if (!reviewer()) { $("so-progress").textContent = "Add your name as reviewer first."; $("reviewer").focus(); return; }
+  const upd = { approval_status: status, approved_by: reviewer(), approved_at: new Date().toISOString(),
+    approval_note: $("so-note").value.trim() || null, final_text: status === "approved" ? finalText(false) : null };
+  const { data, error } = await sb.from("jobs").update(upd).eq("id", job).select().single();
+  if (error) { $("so-result").textContent = `Could not record the sign-off: ${error.message}`; return; }
+  jobRow = data; renderCards();
+}
+
+function auditRecord() {
+  const r = jobRow, rows = Object.entries(claimsByVerdict());
+  const lines = [
+    `# Audit record: ${r.file_name || "promotion"}`, "",
+    `- Review ID: ${r.id}`, `- Reviewed: ${new Date(r.created_at).toLocaleString()}`,
+    `- Agent status: ${r.status}`, `- Sign-off: ${r.approval_status || "pending"}${r.approved_by ? ` by ${r.approved_by} at ${new Date(r.approved_at).toLocaleString()}` : ""}`,
+    r.approval_note ? `- Note: ${r.approval_note}` : null,
+    `- Rulebook versions: ${Object.entries(r.rules_version || {}).map(([a, v]) => `${a} ${v}`).join(", ")}`,
+    r.totals ? `- Agent calls: ${r.totals.calls}, cost $${(+r.totals.cost_usd).toFixed(3)}, ${r.totals.seconds}s` : null, "",
+    "## Human decisions", "", "| Claim | Agent verdict | Decision | Final wording | By | At |", "|---|---|---|---|---|---|",
+    ...rows.map(([c, fs]) => { const d = decisions[c]; const cell = (x) => String(x ?? "-").replace(/\|/g, "\\|").replace(/\n/g, " ");
+      return `| ${cell(c)} | ${fs[0].verdict} | ${d ? d.decision : (fs[0].verdict === "pass" ? "no change" : "pending")} | ${cell(d ? d.final_text : c)} | ${cell(d?.decided_by)} | ${d ? new Date(d.decided_at).toLocaleString() : "-"} |`; }),
+    "", "## Final document", "", "```", finalText(false).trim(), "```", "",
+    "## Agent review and reasoning", "", r.report_md || "(not available)",
+  ];
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([lines.filter((l) => l !== null).join("\n")], { type: "text/markdown" }));
+  a.download = `audit-record-${r.id.slice(0, 8)}.md`; a.click();
+}
+
+async function loadJob() {
+  if (!job) return;
+  const { data } = await sb.from("jobs").select("*").eq("id", job).single();
+  if (!data) return;
+  jobRow = data;
+  if (data.settings) applySettings(data.settings);
+  $("status").textContent = `Status: ${data.status.replace("_", " ")}${data.approval_status ? `, ${data.approval_status}` : ""}`;
+  const { data: ds } = await sb.from("decisions").select("*").eq("job_id", job);
+  decisions = Object.fromEntries((ds || []).map((d) => [d.claim, d]));
+  renderCards(); renderFinal(); renderRegRules(); renderDebate(); renderAlert();
+  if (!$("inputs").hidden) collapseInputs(data.file_name);
+  if (Object.keys(decisions).length || data.approval_status) nodeFor("human")?.classList.add("on");
+}
+
+async function renderRegRules() {
+  const items = await Promise.all(REG.map(async ([a, label]) => {
+    let n = "?"; try { n = (await (await fetch(`prompts/rulebook_${a}.json`)).json()).length; } catch {}
+    const ver = jobRow?.rules_version?.[a];
+    return `<li><span>${label}</span><span>${n} FCA rules${ver ? `, v${ver.slice(0, 6)}` : ""}</span></li>`;
+  }));
+  $("reg-rules").innerHTML = items.join("");
+}
+
+async function loadHouse() {
+  const { data, error } = await sb.from("house_rules").select("*").order("rule_id");
+  if (error) { $("house-sum").textContent = "House rules (run schema.sql to enable)"; return; }
+  const active = (data || []).filter((r) => r.active).length;
+  $("house-sum").textContent = `House rules: ${active} active${data?.length ? "" : " (loaded on first review)"}`;
+  $("house-rules").className = "rules house";
+  $("house-rules").innerHTML = (data || []).map((r) => `<li><label><input type="checkbox" data-hr="${r.id}" ${r.active ? "checked" : ""}> <b>${esc(r.rule_id)}</b> ${esc(r.rule_text)}</label></li>`).join("");
+}
+$("house-rules").addEventListener("change", async (e) => {
+  const id = e.target.dataset.hr; if (!id) return;
+  await sb.from("house_rules").update({ active: e.target.checked }).eq("id", id); loadHouse();
+});
+$("house-form").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const { data } = await sb.from("house_rules").select("rule_id");
+  const n = Math.max(0, ...(data || []).map((r) => +r.rule_id.replace(/\D/g, "") || 0)) + 1;
+  const { error } = await sb.from("house_rules").insert({ rule_id: `HOUSE-${String(n).padStart(2, "0")}`, rule_text: $("hr-text").value.trim(),
+    test: $("hr-test").value.trim() || null, created_by: reviewer() || "unknown" });
+  if (error) { $("house-sum").textContent = `Could not add the rule: ${error.message}`; return; }
+  $("hr-text").value = ""; $("hr-test").value = ""; loadHouse();
+});
+
+async function watch(id) {
+  reset(); job = id;
+  if (channel) sb.removeChannel(channel);
+  channel = sb.channel(`job-${id}`)
+    .on("postgres_changes", { event: "INSERT", schema: "public", table: "events", filter: `job_id=eq.${id}` }, (p) => addEvent(p.new))
+    .on("postgres_changes", { event: "INSERT", schema: "public", table: "findings", filter: `job_id=eq.${id}` }, (p) => { findings.push(p.new); renderCards(); })
+    .on("postgres_changes", { event: "UPDATE", schema: "public", table: "jobs", filter: `id=eq.${id}` }, () => loadJob())
+    .on("postgres_changes", { event: "*", schema: "public", table: "decisions", filter: `job_id=eq.${id}` }, (p) => { if (p.new?.claim) { decisions[p.new.claim] = p.new; renderCards(); } })
+    .on("postgres_changes", { event: "INSERT", schema: "public", table: "doc_versions", filter: `job_id=eq.${id}` }, (p) => onVersion(p.new))
+    .subscribe();
+  const [{ data: ev }, { data: fs }] = await Promise.all([
+    sb.from("events").select("*").eq("job_id", id).order("id"),
+    sb.from("findings").select("*").eq("job_id", id).order("id"),
+  ]);
+  (ev || []).forEach((e) => addEvent(e, false));
+  findings = fs || []; renderCards(); loadJob(); loadVersions();
+}
+
+async function replay(id) {
+  if (channel) sb.removeChannel(channel);
+  reset(); job = id;
+  const [{ data: ev }, { data: fs }, { data: vs }, { data: jr }] = await Promise.all([
+    sb.from("events").select("*").eq("job_id", id).order("id"),
+    sb.from("findings").select("*").eq("job_id", id).order("id"),
+    sb.from("doc_versions").select("*").eq("job_id", id).order("version").order("id"),
+    sb.from("jobs").select("*").eq("id", id).single(),
+  ]);
+  if (!ev?.length) return;
+  jobRow = { ...jr, approval_status: null, exports: null }; versions = [];
+  const pendingV = [...(vs || [])];
+  const start = new Date(ev[0].created_at);
+  for (const e of ev) {
+    if (job !== id) return;
+    const visible = !!msgFor(e) || ["plan_created", "job_done", "redacted"].includes(e.step_type);
+    await new Promise((r) => setTimeout(r, (visible ? 1600 : 35) / speed));  // reading pace for messages
+    addEvent(e); t0 = new Date(Date.now() - (new Date(e.created_at) - start));
+    const t = new Date(e.created_at);
+    while (pendingV.length && new Date(pendingV[0].created_at) <= t) onVersion(pendingV.shift());
+    for (const f of (fs || []).filter((f) => new Date(f.created_at) <= t && !findings.includes(f))) findings.push(f);
+    renderCards();
+  }
+  pendingV.forEach(onVersion);
+  findings = fs || []; renderCards(); loadJob();
+}
+
+
+// ---- Architecture map + debate view --------------------------------------
+const PERSONA = {
+  redactor: ["Tokeniser", "T", "var(--clerk)", "left"],
+  orchestrator: ["Orchestrator", "O", "var(--bench)", "left"],
+  "prosecutor:fair_clear": ["Prosecutor, fair and clear", "P", "var(--prosecution)", "left"],
+  "prosecutor:risk_warnings": ["Prosecutor, risk warnings", "P", "var(--prosecution)", "left"],
+  "prosecutor:performance": ["Prosecutor, performance", "P", "var(--prosecution)", "left"],
+  "prosecutor:status_audience": ["Prosecutor, status and audience", "P", "var(--prosecution)", "left"],
+  "prosecutor:house_rules": ["Prosecutor, house rules", "P", "var(--prosecution)", "left"],
+  defender: ["Defender", "D", "var(--defence)", "right"],
+  clerk: ["Clerk (code check)", "C", "var(--clerk)", "left"],
+  fact_checker: ["Fact-checker", "F", "var(--amber)", "left"],
+  "prosecutor:eu_esma": ["Prosecutor, EU rules", "P", "var(--prosecution)", "left"],
+  "prosecutor:us_sec": ["Prosecutor, US rules", "P", "var(--prosecution)", "left"],
+  marketing: ["Marketing", "M", "var(--defence)", "right"],
+  judge: ["Judge", "J", "var(--judge)", "left"],
+  human: ["Compliance reviewer", "You", "var(--ink)", "right"],
+};
+let RULES = {}, claimList = [], currentClaim = null, pinnedClaim = false, debateTimer = null;
+const calls = {};
+
+async function loadRuleTexts() {
+  for (const a of ["fair_clear", "risk_warnings", "performance", "status_audience", "house_rules"]) {
+    try { for (const r of await (await fetch(`prompts/rulebook_${a}.json`)).json()) RULES[r.id] = `${r.source}: ${r.rule_text}`; } catch {}
+  }
+  try { const { data } = await sb.from("house_rules").select("rule_id,rule_text,source"); (data || []).forEach((r) => (RULES[r.rule_id] = `${r.source || "House rule"}: ${r.rule_text}`)); } catch {}
+}
+const ruleChip = (id) => id ? `<span class="rule" title="${esc(RULES[id] || id)}">${esc(id)}</span>` : "";
+
+function nodeFor(agent) { return document.querySelector(`#arch [data-n="${agent}"]`); }
+function updateArch(e) {
+  const lane = e.agent === "worker" ? "orchestrator" : e.agent;
+  const el = nodeFor(lane); if (!el) return;
+  const box = el.closest(".node");
+  if (e.step_type === "agent_started" && e.payload?.model) {
+    modelOf[lane] = e.payload.model;
+    const sm = box.querySelector("small"); const nm = MODEL_NAMES[e.payload.model] || e.payload.model;
+    if (sm && !sm.dataset.m) { sm.dataset.m = 1; sm.textContent = sm.textContent.replace(/^[^·]*·/, `${nm} ·`); }
+  }
+  if (e.step_type === "agent_started") { calls[lane] = (calls[lane] || 0) + 1; const i = box.querySelector("i"); if (i) i.textContent = `${calls[lane]}×`; }
+  const busy = (active[lane] || 0) > 0;
+  el.classList.toggle("on", busy);
+  if (box !== el) box.classList.toggle("on", [...box.querySelectorAll("span")].some((sp) => sp.classList.contains("on")));
+  const flash = e.step_type === "retry" || e.step_type === "finding_rejected" ? "retry" : e.step_type === "escalated" || e.step_type === "error" ? "alarm" : "";
+  if (flash) { box.classList.add(flash); setTimeout(() => box.classList.remove(flash), 1600); }
+  if (["finding_proposed", "handoff"].includes(e.step_type) && lane !== "clerk") { const c = nodeFor("clerk"); if (e.message.includes("judge")) { c.classList.add("on"); setTimeout(() => c.classList.remove("on"), 700); } }
+}
+function resetArch() {
+  document.querySelectorAll("#arch .on, #arch .retry, #arch .alarm").forEach((n) => n.classList.remove("on", "retry", "alarm"));
+  document.querySelectorAll("#arch i").forEach((i) => (i.textContent = ""));
+  for (const k in calls) delete calls[k];
+}
+
+function claimOf(e) {
+  if (["redacted", "plan_created"].includes(e.step_type) || (e.step_type === "handoff" && /transcribed/.test(e.message || ""))) return "INTAKE";
+  if (e.payload && e.payload.claim_id) return e.payload.claim_id;
+  if (e.payload && e.payload.claim && e.payload.claim.id) return e.payload.claim.id;
+  const m = /^(C\d+)\b/.exec(e.message || ""); return m ? m[1] : null;
+}
+
+const MODEL_NAMES = { "openai/gpt-6.1-sol": "GPT-6.1 Sol (OpenAI)", "google/gemini-4-argon": "Gemini 4 Argon (Google)", "openai/gpt-6-luna": "GPT-6 Luna (OpenAI)", "openai/gpt-5.6-luna": "GPT-5.6 Luna (OpenAI)", "openai/gpt-5-mini": "GPT-5 mini (OpenAI)", "openai/gpt-5.4": "GPT-5.4 (OpenAI)", "google/gemini-3.1-pro-preview": "Gemini 3.1 Pro (Google)", "google/gemini-2.5-flash": "Gemini 2.5 Flash (Google)", "claude-sonnet-5-5": "Sonnet 5.5", "claude-sonnet-5": "Sonnet 5", "claude-opus-5-5": "Opus 5.5", "claude-haiku-5-5": "Haiku 5.5" };
+const modelOf = {};
+function msgFor(e) {
+  const p = e.payload || {}, t = e.step_type, a = e.agent;
+  if (t === "redacted") {
+    const toks = p.tokens || []; const kinds = {};
+    toks.forEach((k) => { const m = /\[([A-Z]+)_/.exec(k); if (m) kinds[m[1]] = (kinds[m[1]] || 0) + 1; });
+    return ["redactor", toks.length
+      ? `I found <b>${toks.length} personal or sensitive detail${toks.length > 1 ? "s" : ""}</b> and replaced them with tokens before any other agent saw the text: ${Object.entries(kinds).map(([k, n]) => `<span class="tok">${k} ×${n}</span>`).join(" ")}. The real values stay in the vault and come back only in the approved files.`
+      : "No personal or sensitive data found. Nothing to tokenise."];
+  }
+  if (t === "handoff" && /transcribed/.test(e.message || "")) return ["orchestrator", esc(e.message)];
+  if (t === "plan_created") return ["orchestrator", `I split the material into <b>${(p.claims || []).length} claims</b> for a ${esc(p.audience)} audience (${esc(p.product_type || "product")}). Rulebooks applied: ${(p.rulebooks || []).map((b) => `<span class="rd">${esc(b)}</span>`).join(" ")}. Each claim now goes to its prosecutors and the defender.`];
+  const rb = p.round ? `<span class="rd">Round ${p.round}</span> ` : "";
+  if (p.kind === "conference") return [a, `<span class="rd">Conference</span> ${p.keep ? "I keep" : "I withdraw"} ${ruleChip(p.rule_id)}${p.endorses?.length ? `, and endorse ${p.endorses.map(ruleChip).join(" ")}` : ""}. ${esc(p.note)}`];
+  if (p.kind === "fact_check") { const bad = [...(p.invented_facts || []), ...(p.invented_rules || [])]; const subj = (p.subject || "judge").replace("prosecutor:", "prosecutor, ").replace("_", " "); return [a, bad.length ? `${p.round ? `<span class="rd">Round ${p.round}</span> ` : ""}<b>The ${esc(subj)} said something the document doesn't support:</b> ${esc(bad.join("; "))}` : `${p.round ? `<span class="rd">Round ${p.round}</span> ` : ""}Checked the ${esc(subj)}: no invented facts, rules or cases.${p.placeholders?.length ? ` Needs your input: ${esc(p.placeholders.join(", "))}` : ""}`, bad.length ? "objection" : ""]; }
+  if (p.kind === "guidance") return [p.source === "marketing" ? "marketing" : "human", `<b>${p.source === "marketing" ? "Contest" : "Guidance"}:</b> ${esc(p.text)}`];
+  if (p.kind === "defence") return [a, `${rb}${p.position === "acceptable" ? "This is acceptable as written." : "Here is my rewrite."} ${esc(p.argument)}${p.minimal_rewrite ? `<span class="fix">${esc(p.minimal_rewrite)}</span>` : ""}`];
+  if (p.kind === "rebuttal") return [a, `${rb}${p.accept ? "<b>I accept.</b>" : "<b>I object.</b>"} ${ruleChip(p.rule_id)} ${esc(p.argument)}`, p.accept ? "" : "objection"];
+  if (p.kind === "objections_open") return ["clerk", `Round ${p.round}: ${esc(e.message.split(": ").slice(1).join(": "))}. Another round.`, "system"];
+  if (p.kind === "agreement") return ["clerk", `Agreement reached in round ${p.round}. Sending the agreed wording to the judge.`, "system"];
+  if (p.kind === "deadlock") return ["clerk", `No agreement after ${p.round} rounds. The judge decides.`, "system"];
+  if (p.kind === "remand") return ["judge", `Remanded for another round. ${esc(p.remand_reason)}`, "objection"];
+  if (p.kind === "final_check") return ["clerk", p.objections && p.objections.length ? `Final check: prosecution still objects. Escalating to you.` : `Final check: prosecution confirms the approved wording cures every upheld charge.`, "system"];
+  if (t === "handoff" && a === "clerk" && /verified -> debate/.test(e.message)) return [a, `Checked: every quote appears word for word and every rule ID exists. ${p.charges} charge(s) go to debate.`, "system"];
+  if (t === "handoff" && a === "orchestrator" && p.claim) return [a, `I found this claim: <q>${esc(p.claim.quote)}</q><br>Sending it to ${p.claim.rule_areas.map((x) => x.replace("_", " ")).join(", ")} and to the defence.`];
+  if (t === "finding_proposed") return [a, `I charge a breach of ${ruleChip(p.rule_id)} (${esc(p.severity)} severity). The words <q>${esc(p.quote)}</q> ${esc(p.argument)}${p.suggested_rewrite ? `<span class="fix">Suggested: ${esc(p.suggested_rewrite)}</span>` : ""}`];
+  if (t === "agent_finished" && a.startsWith("prosecutor") && /no breach/.test(e.message)) return [a, `No breach under my rulebook.${p.argument ? " " + esc(p.argument) : ""}`];
+  if (t === "finding_rejected" && a === "clerk") return [a, `Objection: ${esc(p.reason || e.message)}. ${/again/.test(e.message) ? "Charge struck out." : "Sent back to the prosecutor to try once more."}`, "objection"];
+  if (t === "retry" && a.startsWith("prosecutor")) return [a, "Understood. Re-arguing with an exact quote and a rule from my rulebook.", "objection"];
+  if (t === "agent_finished" && a === "defender" && p.argument) return [a, `${p.position === "acceptable" ? "This is acceptable in context." : "I accept it needs a change, but only a small one."} ${esc(p.argument)}${p.minimal_rewrite ? `<span class="fix">Minimal rewrite: ${esc(p.minimal_rewrite)}</span>` : ""}`];
+  if (t === "handoff" && a === "clerk") return [a, `Checked: every quote appears word for word in the document and every rule ID exists. ${p.charges ?? ""} charge(s) go to the judge.`, "system"];
+  if (t === "retry" && a === "judge") return [a, `Remanded. ${esc(p.remand_reason || e.message)}`, "objection"];
+  if ((t === "finding_verified" || t === "finding_rejected") && a === "judge") return [a, `${ruleChip(p.rule_id)} ${t === "finding_verified" ? "upheld" : "dismissed"}.${p.reasoning ? " " + esc(p.reasoning) : ""}`];
+  if ((t === "agent_finished" || t === "escalated") && a === "judge" && (p.ruling || /verdict/.test(e.message))) {
+    const r = p.ruling || {}; const v = (r.verdict || (/PASS/.test(e.message) ? "pass" : /FIX/.test(e.message) ? "fix" : "escalate"));
+    return [a, `<b>Ruling: ${v === "pass" ? "pass" : v === "fix" ? "fix" : "escalate to a human"}.</b> ${esc(r.reasoning || "")}${r.final_rewrite ? `<span class="fix">Approved rewrite: ${esc(r.final_rewrite)}</span>` : ""}`, "ruling"];
+  }
+  return null;
+}
+
+function renderClaimTabs() {
+  const plan = events.find((e) => e.step_type === "plan_created");
+  claimList = plan ? (plan.payload.claims || []) : [];
+  if (!claimList.length && !events.some((e) => e.step_type === "redacted")) return;
+  const verdictOf = (id) => { const j = events.filter((e) => claimOf(e) === id && e.agent === "judge" && (e.payload?.ruling || /verdict/.test(e.message))).pop(); if (!j) return null; return j.payload?.ruling?.verdict || (/PASS/.test(j.message) ? "pass" : /FIX/.test(j.message) ? "fix" : "escalate"); };
+  const col = { pass: "var(--pass)", fix: "var(--judge)", escalate: "var(--prosecution)" };
+  $("claimtabs").innerHTML = `<button data-c="INTAKE" aria-pressed="${currentClaim === "INTAKE"}" style="--v:var(--clerk)" title="Tokenising personal data and splitting into claims">Intake</button>` + claimList.map((c) => { const v = verdictOf(c.id); return `<button data-c="${c.id}" aria-pressed="${c.id === currentClaim}" style="--v:${v ? col[v] : "var(--rule)"}" title="${esc(c.quote)}">${c.id}: ${esc(c.summary || c.quote)}</button>`; }).join("");
+}
+
+function renderDebate(animateFromId = null) {
+  renderClaimTabs();
+  if (!currentClaim) { $("thread").innerHTML = ""; return; }
+  const claim = currentClaim === "INTAKE" ? null : claimList.find((c) => c.id === currentClaim);
+  const items = [];
+  for (const e of events) {
+    if (claimOf(e) !== currentClaim) continue;
+    const m = msgFor(e); if (!m) continue;
+    items.push([e.id, ...m]);
+  }
+  const d = claim && decisions[claim.quote];
+  if (d) items.push(["human", "human", `${{ accept: "I accept the judge's rewrite.", edit: "I've edited the wording:", keep: "I'm keeping the original wording." }[d.decision]}${d.decision === "edit" ? `<span class="fix">${esc(d.final_text)}</span>` : ""} <small>(${esc(d.decided_by)})</small>`, ""]);
+  const scrolled = $("thread").scrollTop + $("thread").clientHeight >= $("thread").scrollHeight - 30;
+  $("thread").innerHTML = items.map(([id, who, html, kind]) => {
+    const [name, ini, colour, side] = PERSONA[who] || [who, "?", "var(--muted)", "left"];
+    const cls = `msg ${kind === "system" ? "system" : side === "right" ? "right" : ""} ${kind || ""} ${animateFromId && id === animateFromId ? "new" : ""}`;
+    if (kind === "system") return `<div class="${cls}" style="--c:${colour}"><div class="bubble">${html}</div></div>`;
+    const mdl = MODEL_NAMES[modelOf[who]] || modelOf[who];
+    return `<div class="${cls}" style="--c:${colour}"><div class="av" aria-hidden="true">${ini}</div><div class="bubble"><div class="who">${name}${mdl ? ` <small>· ${esc(mdl)}</small>` : ""}</div>${html}</div></div>`;
+  }).join("") || '<p class="hint">Waiting for the agents to pick up this claim.</p>';
+  if (scrolled || animateFromId) $("thread").scrollTop = $("thread").scrollHeight;
+}
+
+const ruled = new Set();
+function onDebateEvent(e, animate) {
+  const c = claimOf(e);
+  if (c && e.agent === "judge" && (e.payload?.ruling || /verdict/.test(e.message))) ruled.add(c);
+  // Follow one claim until the judge rules on it, then move on: readable instead of jumping around
+  if (c && !pinnedClaim && msgFor(e) && (!currentClaim || ruled.has(currentClaim) || currentClaim === c)) currentClaim = c;
+  if (!currentClaim && claimList.length) currentClaim = claimList[0].id;
+  clearTimeout(debateTimer);
+  debateTimer = setTimeout(() => renderDebate(animate && c === currentClaim ? e.id : null), animate ? 0 : 60);
+}
+$("claimtabs").addEventListener("click", (e) => { const c = e.target.closest("button")?.dataset.c; if (!c) return; currentClaim = c; pinnedClaim = true; renderDebate(); });
+function showTab(which) {
+  if (which === "document") { document.querySelector(".docpanel").scrollIntoView({ behavior: "smooth" }); return; }
+  for (const t of ["debate", "timeline"]) { $(`tab-${t}`).setAttribute("aria-selected", t === which); $(`${t}-view`).hidden = t !== which; }
+}
+$("tab-debate").onclick = () => showTab("debate");
+$("tab-timeline").onclick = () => showTab("timeline");
+
+
+// ---- Document view: original vs approved copy -----------------------------
+function blocksHTML(text) {
+  const lines = text.split("\n"); const out = []; let para = [], bullets = [], rows = [];
+  const flush = () => {
+    if (para.length) out.push(`<p>${para.join("<br>")}</p>`);
+    if (bullets.length) out.push(`<ul>${bullets.map((b) => `<li>${b}</li>`).join("")}</ul>`);
+    if (rows.length) out.push(`<table>${rows.map((r) => `<tr>${r.map((c) => `<td>${c}</td>`).join("")}</tr>`).join("")}</table>`);
+    para = []; bullets = []; rows = [];
+  };
+  const hdr = []; while (lines.length && /^(From|To|Cc|Subject|Date):/.test(lines[0])) hdr.push(esc(lines.shift()));
+  if (hdr.length) out.push(`<div class="hdr">${hdr.join("<br>")}</div>`);
+  for (const raw of lines) {
+    const line = raw.replace(/\s+$/, ""), t = line.trim();
+    const e = esc(t.replace(/^[#\-*•|]+\s*/, ""));
+    if (!t) flush();
+    else if (/^-{3}\s*page/i.test(t)) { flush(); out.push(`<div class="pg">${esc(t.replace(/^-+|-+$/g, "").trim())}</div>`); }
+    else if (line.startsWith("## ")) { flush(); out.push(`<h2>${e}</h2>`); }
+    else if (line.startsWith("# ")) { flush(); out.push(`<h1>${e}</h1>`); }
+    else if (/^[-*•] /.test(t)) { if (para.length || rows.length) flush(); bullets.push(e); }
+    else if (t.startsWith("|")) { if (/^[|\-:\s]+$/.test(t)) continue; if (para.length || bullets.length) flush(); rows.push(t.replace(/^\||\|$/g, "").split("|").map((c) => esc(c.trim()))); }
+    else { if (bullets.length || rows.length) flush(); para.push(esc(line)); }
+  }
+  flush();
+  return out.join("").replace(/\[(PERSON|EMAIL|PHONE|ADDRESS|ACCOUNT|CLIENT|CONFIDENTIAL|OTHER)_(\d+)\]/g, '<span class="tok" title="Personal data, held in the vault">$1 $2</span>');
+}
+
+function docChanges() {
+  const items = {}, base = jobRow?.document_text || "";
+  const upto = +$("ver").value;
+  const ruleOf = (claim) => [...new Set((claimsByVerdict()[claim] || []).filter((f) => f.status === "verified" || f.status === "escalated").map((f) => f.rule_id).filter(Boolean))];
+  if (versions.length) {
+    for (const v of versions) if (v.kind === "agent" && v.version <= upto && v.claim) items[v.claim] = { claim: v.claim, text: v.new_text, kind: "chg" };
+  } else {
+    for (const [claim, fs] of Object.entries(claimsByVerdict())) if (fs[0].verdict === "fix" && fs[0].suggested_rewrite) items[claim] = { claim, text: fs[0].suggested_rewrite, kind: "pending" };
+  }
+  if (!verPinned) for (const [claim, d] of Object.entries(decisions)) {
+    if (d.decision === "keep") delete items[claim]; else items[claim] = { claim, text: d.final_text, kind: "chg" };
+  }
+  const list = Object.values(items).map((it) => ({ ...it, risk: riskOf(claimsByVerdict()[it.claim] || [{}]), rules: ruleOf(it.claim), pos: base.indexOf(it.claim) < 0 ? 1e9 : base.indexOf(it.claim) }));
+  list.sort((a, b) => a.pos - b.pos); list.forEach((it, i) => (it.n = i + 1));
+  return list;
+}
+function withMarks(text, items, side) {
+  const subs = [];
+  for (const it of items) {
+    const tok = `\u0001${subs.length}\u0001`;
+    const before = text; text = replaceQuote(text, it.claim, tok);
+    if (text !== before) subs.push(it);
+  }
+  let h = blocksHTML(text);
+  subs.forEach((it, i) => {
+    const tip = esc(`${it.rules.join(", ") || "Reviewer edit"}${side === "new" ? ` | was: ${it.claim}` : ` | now: ${it.text}`}`);
+    const body = side === "new" ? esc(it.text) : esc(it.claim);
+    const fl = side === "new" && it.claim === lastFlash ? " flash" : "";
+    h = h.replace(`\u0001${i}\u0001`, `<mark data-claim="${esc(it.claim)}" class="${side === "new" ? it.kind : "old"}${fl}" title="${tip}">${body}</mark><sup class="n r-${it.risk || "none"}" title="${esc(it.risk || "")} risk">${it.n}</sup>`);
+  });
+  return h;
+}
+function baseText() { return jobRow?.document_text || versions.find((v) => v.kind === "original")?.full_text || ""; }
+function renderDocument() {
+  if (!jobRow) return;
+  if (!jobRow.document_text && baseText()) jobRow.document_text = baseText();
+  if (!jobRow.document_text) return;
+  const items = docChanges();
+  $("doc-orig").innerHTML = withMarks(jobRow.document_text, items, "old");
+  $("doc-new").innerHTML = withMarks(jobRow.document_text, items, "new");
+  $("cur-note").textContent = items.length ? `${items.length} change${items.length > 1 ? "s" : ""}${signedOff() ? ", approved" : ""}` : "";
+  const fl = $("doc-new").querySelector("mark.flash"); if (fl && lastFlash) { fl.scrollIntoView({ block: "nearest", behavior: "smooth" }); lastFlash = null; }
+  if (jobRow.input_type !== "text" && jobRow.file_path && !$("orig-media").dataset.f) {
+    $("orig-media").dataset.f = 1;
+    const url = sb.storage.from("uploads").getPublicUrl(jobRow.file_path).data.publicUrl;
+    $("orig-media").innerHTML = jobRow.input_type === "image" ? `<img alt="Original as submitted" src="${url}">` : `<p class="hint"><a href="${url}" target="_blank" rel="noopener">Open the original PDF</a>. Below is the text the agents read from it.</p>`;
+  }
+  const x = jobRow.exports;
+  if (x && x.status === "ready") {
+    $("downloads").innerHTML = `<a class="btn" href="${x.approved_pdf}">Approved copy (PDF)</a><a class="btn ghost" href="${x.redline_pdf}">Redline (PDF)</a>${x.email_draft ? `<a class="btn ghost" href="${x.email_draft}">Email draft (.eml)</a>` : ""}<span class="hint">Personal data restored. Links expire in 24 hours.</span>`;
+  } else if (x && x.status === "building") $("downloads").innerHTML = '<span class="hint">Building the approved copy and redline with personal data restored…</span>';
+  else if (x && x.status === "failed") $("downloads").innerHTML = `<span class="hint">Export failed: ${esc(x.error || "")}</span>`;
+  else if (signedOff()) $("downloads").innerHTML = '<span class="hint">Approved. Waiting for the worker to build the files…</span>';
+}
+
+
+
+// ---- Inputs: jurisdiction, audience, channel, rulebooks --------------------
+let detectedChannel = "", JUR = null, role = "compliance", speed = 1, versions = [], verPinned = false, lastFlash = null;
+async function loadJurisdictions() {
+  try { JUR = await (await fetch("prompts/jurisdictions.json")).json(); } catch { JUR = null; }
+  const markets = JUR?.markets || [{ id: "UK", name: "United Kingdom", rulebooks: ["fair_clear", "risk_warnings", "performance", "status_audience"] }];
+  $("set-markets").innerHTML = markets.map((m) => `<label><input type="checkbox" value="${esc(m.id)}" ${m.id === "UK" ? "checked" : ""}> ${esc(m.name)}</label>`).join("");
+  syncBooks();
+}
+function syncBooks() {
+  const labels = JUR?.rulebook_labels || {};
+  const chosen = new Set(["house_rules"]);
+  document.querySelectorAll("#set-markets input:checked").forEach((i) => (JUR?.markets.find((m) => m.id === i.value)?.rulebooks || []).forEach((b) => chosen.add(b)));
+  const all = Object.keys(labels).length ? Object.keys(labels) : [...chosen];
+  setTimeout(booksSummary, 0);
+  $("set-books").innerHTML = all.map((b) => `<label title="${esc(labels[b] || b)}"><input type="checkbox" value="${b}" ${chosen.has(b) ? "checked" : ""}> ${esc((labels[b] || b).replace(/^(FCA|FCA\/FSMA|EU|US): /, "$1 "))}</label>`).join("");
+}
+$("set-markets").addEventListener("change", syncBooks);
+function applySettings(st) {
+  document.querySelectorAll("#set-markets input").forEach((i) => (i.checked = (st.markets || []).includes(i.value)));
+  syncBooks();
+  if (st.rulebooks) document.querySelectorAll("#set-books input").forEach((i) => (i.checked = st.rulebooks.includes(i.value)));
+  if (st.audience !== undefined) $("set-aud").value = st.audience;
+  if (st.channel) { detectedChannel = st.channel; $("set-chan").textContent = st.channel; }
+}
+function booksSummary() { const n = document.querySelectorAll("#set-books input:checked").length; $("books-sum").textContent = `Rulebooks: ${n} applied (from the markets; click to adjust)`; }
+document.addEventListener("change", (e) => { if (e.target.closest("#set-books") || e.target.closest("#set-markets")) booksSummary(); });
+function settings() {
+  return { markets: [...document.querySelectorAll("#set-markets input:checked")].map((i) => i.value),
+    audience: $("set-aud").value, channel: detectedChannel, rulebooks: [...document.querySelectorAll("#set-books input:checked")].map((i) => i.value) };
+}
+
+// ---- Role and replay speed -------------------------------------------------
+function setRole(r) { role = r; setTimeout(() => { showUser(); renderAlert(); }, 0); $("role-compliance").setAttribute("aria-pressed", r === "compliance"); $("role-marketing").setAttribute("aria-pressed", r === "marketing"); try { localStorage.setItem("role", r); } catch {} renderCards(); }
+$("role-compliance").onclick = () => setRole("compliance");
+$("role-marketing").onclick = () => setRole("marketing");
+document.querySelector(".speed").addEventListener("click", (e) => { const v = +e.target.dataset.s; if (!v) return; speed = v; document.querySelectorAll(".speed button").forEach((b) => b.setAttribute("aria-pressed", +b.dataset.s === v)); });
+
+// ---- Document versions (live document) -------------------------------------
+async function loadVersions() {
+  const { data } = await sb.from("doc_versions").select("*").eq("job_id", job).order("version").order("id");
+  versions = data || []; syncSlider();
+  if (!jobRow) { const { data: j } = await sb.from("jobs").select("*").eq("id", job).single(); jobRow = j; }
+  renderDocument();
+}
+function syncSlider() {
+  const max = versions.length ? Math.max(...versions.map((v) => v.version)) : 0;
+  $("ver").max = max; if (!verPinned) $("ver").value = max;
+  const cur = versions.filter((v) => v.version === +$("ver").value).pop();
+  $("ver-label").textContent = cur ? `v${cur.version}: ${cur.label}${+$("ver").value === max ? " (latest)" : ""}` : "Live";
+}
+$("ver").addEventListener("input", () => { verPinned = +$("ver").value !== +$("ver").max; syncSlider(); renderDocument(); });
+function onVersion(v) {
+  if (versions.some((x) => x.id === v.id)) return;
+  versions.push(v); syncSlider(); lastFlash = v.claim; renderDocument();
+  if (v.kind === "agent") nodeFor("judge")?.closest(".node")?.classList.add("on");
+}
+
+// ---- Feedback, contest, guidance -------------------------------------------
+async function sendFeedback(claim, fs, rating, comment, contest, guide = false) {
+  if (!reviewer()) { $("reviewer").focus(); $("so-progress").textContent = "Add your name first."; return; }
+  const top = fs.find((f) => f.rule_id) || fs[0];
+  await sb.from("feedback").insert({ job_id: job, claim, rule_id: top.rule_id, verdict: top.verdict, rating, comment: comment || null, role, contest: !!contest, created_by: reviewer() });
+  if (contest || guide) {
+    await sb.from("guidance").insert({ job_id: job, claim, instruction: comment || "Please reconsider.", source: contest ? "marketing" : "compliance", created_by: reviewer() });
+    $("status").textContent = contest ? "Contest sent. The agents are reconsidering this claim." : "Guidance sent. The agents are resuming this claim.";
+  } else $("status").textContent = "Feedback saved. The rule learner will use it.";
+}
+
+
+// ---- Timestamped timeline ---------------------------------------------------
+let tlStart = null;
+function addTimeline(e) {
+  const t = new Date(e.created_at); if (!tlStart) tlStart = t;
+  const rel = (t - tlStart) / 1000;
+  const lane = laneFor(e); const [name, , colour] = PERSONA[lane] || PERSONA[e.agent] || [e.agent, "", "var(--muted)"];
+  const mdl = e.payload?.model ? (MODEL_NAMES[e.payload.model] || e.payload.model) : "";
+  const row = document.createElement("button");
+  row.className = `tlrow ${chipClass(e.step_type)}`; row.style.setProperty("--c", colour);
+  row.innerHTML = `<time>${t.toLocaleTimeString([], { hour12: false })}<small>+${rel.toFixed(1)}s</small></time><b>${esc(name || e.agent)}</b><span class="st">${esc(e.step_type.replace(/_/g, " "))}</span><span class="msg">${esc(e.message)}${mdl ? ` <small>${esc(mdl)}</small>` : ""}</span><span class="cost">${e.tokens_in ? `${e.tokens_in}→${e.tokens_out} tok · ${(e.latency_ms / 1000).toFixed(1)}s · $${(+e.cost).toFixed(4)}` : ""}</span>`;
+  row.onclick = () => showDetail(e, row);
+  const tl = $("tl"); const atBottom = tl.scrollTop + tl.clientHeight >= tl.scrollHeight - 30;
+  tl.appendChild(row); if (atBottom) tl.scrollTop = tl.scrollHeight;
+}
+
+
+$("dt-new").onclick = () => { $("dt-new").setAttribute("aria-selected", true); $("dt-orig").setAttribute("aria-selected", false); $("doc-new").hidden = false; $("orig-wrap").hidden = true; };
+$("dt-orig").onclick = () => { $("dt-orig").setAttribute("aria-selected", true); $("dt-new").setAttribute("aria-selected", false); $("doc-new").hidden = true; $("orig-wrap").hidden = false; };
+
+
+// ---- Signed-in user (demo SSO), one-click upload, collapsing bar, compliance alert ----
+const USERS = { marketing: ["Sam Patel", "Marketing manager · Larkspire (demo)", "SP"], compliance: ["Alex Morgan", "Head of Compliance · Larkspire (demo)", "AM"] };
+function showUser() {
+  const [n, r, i] = USERS[role]; $("me-name").textContent = n; $("me-role").textContent = r; $("me-av").textContent = i;
+  $("reviewer").value = `${n}, ${r.split(" · ")[0]}`;
+}
+function collapseInputs(fileName) {
+  const st = settings(); const labels = JUR?.rulebook_labels || {};
+  $("sum-text").innerHTML = `<b>${esc(fileName || jobRow?.file_name || "Review")}</b> · ${esc(st.channel || detectedChannel || "material")} · ${esc((st.markets || []).join(", ") || "UK")} · ${esc(st.audience || "audience inferred")} · ${st.rulebooks.length} rulebooks`;
+  $("inputs").hidden = true; $("summary").hidden = false;
+}
+$("open-drawer").onclick = () => openDrawer();
+$("new-review").onclick = () => { $("inputs").hidden = false; $("summary").hidden = true; };
+$("upload").onclick = () => $("file").click();
+$("paste-go").onclick = () => { pending = null; start(); };
+const bar = $("inputs");
+bar.addEventListener("dragover", (e) => { e.preventDefault(); bar.classList.add("dragover"); });
+bar.addEventListener("dragleave", () => bar.classList.remove("dragover"));
+bar.addEventListener("drop", (e) => { e.preventDefault(); bar.classList.remove("dragover"); if (e.dataTransfer.files[0]) { setPending(e.dataTransfer.files[0]); start(); } });
+
+function renderAlert() {
+  if (!jobRow || !reviewable()) { $("alert").innerHTML = ""; return; }
+  const by = claimsByVerdict(); const vals = Object.values(by).map((fs) => fs[0].verdict);
+  const auto = Object.values(decisions).filter((d) => /^Auto-accepted/.test(d.decided_by || "")).length;
+  const highs = Object.entries(by).filter(([c, fs]) => riskOf(fs) === "high" && fs[0].verdict !== "pass" && !decisions[c]).length;
+  const open = Object.entries(by).filter(([c, fs]) => (fs[0].verdict === "escalate" || riskOf(fs) === "high") && fs[0].verdict !== "pass" && !decisions[c]).length;
+  const done = jobRow.approval_status;
+  $("alert").innerHTML = `<div class="mail" aria-label="Email sent to compliance">
+    <div class="mh"><b>To:</b> compliance-review@larkspire.example (Alex Morgan)<br><b>From:</b> Countersign<br><b>Subject:</b> ${esc(jobRow.file_name)}: ${auto} change${auto === 1 ? "" : "s"} auto-applied, ${open ? `${open} need${open === 1 ? "s" : ""} you` : "ready to release"}</div>
+    <div class="mb"><p>The agents reviewed ${vals.length} claims against ${(jobRow.settings?.rulebooks || []).length || "the selected"} rulebooks. ${auto} fixes were accepted automatically under your house-rules policy; you can still edit or reject any of them.${open ? ` ${open} claim${open === 1 ? " needs" : "s need"} your decision before release${highs ? ` (${highs} high risk, never auto-accepted)` : ""}.` : ""}</p>
+    ${done ? `<p><b>${done === "approved" ? "Released" : "Returned"} by ${esc(jobRow.approved_by)}.</b></p>` : role === "compliance"
+      ? `<div class="row"><button class="btn" id="release" ${open ? "disabled title='Decide the escalated claims first'" : ""}>Release</button><button class="btn ghost" id="intervene">Intervene</button></div>`
+      : `<p class="hint">Sent to compliance. You'll be notified when they release it.</p>`}</div></div>`;
+  if ($("release")) $("release").onclick = () => signOff("approved");
+  if ($("intervene")) $("intervene").onclick = () => { $("cards").scrollIntoView({ behavior: "smooth" }); };
+}
+
+
+// ---- Verdict drawer: opens on a change ---------------------------------------
+function openDrawer(claim) {
+  $("drawer").classList.add("open");
+  if (!claim) return;
+  const idx = Object.keys(claimsByVerdict()).indexOf(claim);
+  const card = $("cards").querySelectorAll(".card")[idx];
+  $("cards").querySelectorAll(".card.focus").forEach((c) => c.classList.remove("focus"));
+  if (card) { card.classList.add("focus"); card.scrollIntoView({ block: "center" }); }
+}
+$("drawer-close").onclick = () => $("drawer").classList.remove("open");
+document.addEventListener("keydown", (e) => { if (e.key === "Escape") $("drawer").classList.remove("open"); });
+$("doc-new").addEventListener("click", (e) => { const m = e.target.closest("mark"); if (m?.dataset.claim) openDrawer(m.dataset.claim); });
+$("doc-orig").addEventListener("click", (e) => { const m = e.target.closest("mark"); if (m?.dataset.claim) openDrawer(m.dataset.claim); });
+
+
+// ---- Collapsible courtroom (the fun part); the before/after comparison does the job ----
+function setCourt(open) {
+  document.body.classList.toggle("court-collapsed", !open);
+  $("court-toggle").setAttribute("aria-expanded", open);
+  try { localStorage.setItem("court", open ? "1" : "0"); } catch {}
+}
+$("court-toggle").onclick = () => setCourt(document.body.classList.contains("court-collapsed"));
+try { setCourt(localStorage.getItem("court") !== "0"); } catch { setCourt(true); }
+function tick(e) {
+  const busy = Object.values(active).reduce((a, b) => a + b, 0);
+  const c = claimOf(e); const r = e.payload?.round;
+  let text = "";
+  if (e.step_type === "job_done") text = `Done: ${e.message.split("|")[0]}`;
+  else if (c && msgFor(e)) text = `${c}${r ? ` · round ${r}` : ""} · ${(PERSONA[laneFor(e)] || [e.agent])[0]}: ${e.message.replace(/^C\d+[: ]*/, "")}`;
+  if (text) $("ticker").textContent = `${text}${busy && e.step_type !== "job_done" ? ` · ${busy} agent${busy > 1 ? "s" : ""} working` : ""}`;
+  $("ticker").classList.toggle("live", busy > 0 && e.step_type !== "job_done");
+}
+
+
+// ---- Risk levels and approved phrase bank -------------------------------------
+const riskOf = (fs) => (fs.find((f) => f.risk) || {}).risk || (fs[0].verdict === "pass" ? "low" : "");
+const riskBadge = (r) => r ? `<span class="risk ${r}">${r[0].toUpperCase() + r.slice(1)} risk</span>` : "";
+let PHRASES = [];
+(async () => { try { PHRASES = (await (await fetch("prompts/phrasebank.json")).json()).phrases || []; } catch {} })();
+function phraseOptions(fs) {
+  const areas = new Set(fs.map((f) => f.reviewer).flatMap((r) => (r || "").split(",")));
+  const markets = new Set([...(jobRow?.settings?.markets || ["UK"]), "ALL"]);
+  return PHRASES.filter((p) => markets.has(p.jurisdiction) && (p.rule_areas || []).some((a) => areas.has(a)))
+    .sort((a, b) => (b.prescribed ? 1 : 0) - (a.prescribed ? 1 : 0)).slice(0, 8);
+}
+
+// Uploading
+async function detectChannel(file) {
+  if (!file) return "";
+  if (/\.pdf$/i.test(file.name)) return "Brochure (PDF)";
+  if (/\.(png|jpe?g|webp|gif)$/i.test(file.name)) return "Social ad / advert (image)";
+  const head = (await file.text()).slice(0, 600);
+  return /^(From|To|Subject):/m.test(head) ? "Email" : "Web or print copy (text)";
+}
+function setPending(file) {
+  pending = file; $("go").disabled = !file;
+  detectChannel(file).then((c) => { detectedChannel = c; $("set-chan").textContent = c || "Detected when you add a file"; });
+  $("preview").innerHTML = "";
+  if (!file) return;
+  if (file.type.startsWith("image/")) $("preview").innerHTML = `<img alt="Uploaded promotion" src="${URL.createObjectURL(file)}">`;
+  else if (file.type === "application/pdf") $("preview").innerHTML = `<p class="hint">${esc(file.name)} (PDF)</p>`;
+  else file.text().then((t) => ($("preview").innerHTML = `<pre>${esc(t)}</pre>`));
+  $("status").textContent = `Ready: ${file.name}`;
+}
+function kind(name) { return /\.pdf$/i.test(name) ? "pdf" : /\.(png|jpe?g|webp|gif)$/i.test(name) ? "image" : "text"; }
+
+async function start() {
+  let file = pending;
+  if (!file && $("paste").value.trim()) file = new File([$("paste").value], "pasted.txt", { type: "text/plain" });
+  if (!file) return;
+  $("go").disabled = true; $("status").textContent = "Uploading"; collapseInputs(file.name);
+  const path = `${crypto.randomUUID()}/${file.name}`;
+  const up = await sb.storage.from("uploads").upload(path, file, { contentType: file.type || "text/plain" });
+  if (up.error) { $("status").textContent = `Upload failed: ${up.error.message}. Check the uploads bucket exists.`; $("go").disabled = false; return; }
+  const { data, error } = await sb.from("jobs").insert({ file_path: path, file_name: file.name, input_type: kind(file.name), status: "queued", settings: settings() }).select().single();
+  if (error) { $("status").textContent = `Could not queue the review: ${error.message}`; $("go").disabled = false; return; }
+  $("status").textContent = "Queued. Waiting for the worker to pick it up.";
+  await watch(data.id); loadHistory(); $("go").disabled = false;
+}
+
+async function loadHistory() {
+  const { data } = await sb.from("jobs").select("id,file_name,status,created_at,totals").order("created_at", { ascending: false }).limit(30);
+  $("history").innerHTML = '<option value="">Choose a review</option>' + (data || []).map((j) =>
+    `<option value="${j.id}">${esc(j.file_name || "review")}, ${new Date(j.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}, ${j.status.replace("_", " ")}${j.totals ? `, $${(+j.totals.cost_usd).toFixed(2)}` : ""}</option>`).join("");
+}
+
+$("file").onchange = (e) => { if (e.target.files[0]) { setPending(e.target.files[0]); start(); } };
+const drop = $("drop");
+drop.addEventListener("dragover", (e) => { e.preventDefault(); drop.classList.add("over"); });
+drop.addEventListener("dragleave", () => drop.classList.remove("over"));
+drop.addEventListener("drop", (e) => { e.preventDefault(); drop.classList.remove("over"); setPending(e.dataTransfer.files[0]); });
+drop.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") $("file").click(); });
+$("paste").oninput = () => { if (!pending) $("go").disabled = !$("paste").value.trim(); };
+$("go").onclick = start;
+$("history").onchange = (e) => { $("replay").disabled = !e.target.value; if (e.target.value) watch(e.target.value); };
+$("replay").onclick = () => replay($("history").value);
+$("samples").innerHTML = SAMPLES.map(([n, f]) => `<button data-f="${f}">${n}</button>`).join("");
+$("samples").onclick = async (e) => {
+  const f = e.target.dataset.f; if (!f) return;
+  const res = await fetch(`samples/${f}`);
+  if (!res.ok) { $("status").textContent = `Sample ${f} is not available yet.`; return; }
+  const blob = await res.blob();
+  setPending(new File([blob], f, { type: blob.type || "text/plain" }));
+  start();
+};
+
+$("download").onclick = auditRecord;
+$("approve").onclick = () => signOff("approved");
+$("return").onclick = () => signOff("returned");
+try { $("reviewer").value = localStorage.getItem("reviewer") || ""; } catch {}
+$("reviewer").oninput = () => { try { localStorage.setItem("reviewer", reviewer()); } catch {} renderFinal(); };
+buildLanes(); loadHistory(); loadRuleTexts(); loadJurisdictions();
+try { const r = localStorage.getItem("role"); if (r) setRole(r); } catch {}
+showUser();
+const qp = new URLSearchParams(location.search);
+if (qp.get("job")) qp.get("replay") ? (speed = +qp.get("replay") || 1, replay(qp.get("job"))) : watch(qp.get("job"));
+if (qp.get("tab")) showTab(qp.get("tab"));
+</script>
+</body>
+</html>

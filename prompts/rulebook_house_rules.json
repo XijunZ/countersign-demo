@@ -1,0 +1,72 @@
+[
+  {
+    "id": "HOUSE-01",
+    "source": "House rule: Marketing Compliance Policy v1, s.2.1",
+    "source_url": "",
+    "rule_text": "Do not use 'top-quartile', 'best-in-class', 'market-leading', 'award-winning' or similar superlatives unless an independent source and date are cited in the same sentence.",
+    "test": "Does the claim use a superlative or ranking without an independent, dated source right next to it?",
+    "applies_to": "all",
+    "fail_example": "A top-quartile manager across every vintage.",
+    "pass_example": "Ranked in the top quartile of its peer group over five years to 30 June 2026 (Source: independent data provider, 2026)."
+  },
+  {
+    "id": "HOUSE-02",
+    "source": "House rule: Marketing Compliance Policy v1, s.2.2",
+    "source_url": "",
+    "rule_text": "Never describe any investment, income or capital as 'guaranteed', 'protected', 'safe', 'secure' or 'risk-free', in any context, including headlines and taglines.",
+    "test": "Does the wording use any banned safety word (guaranteed, protected, safe, secure, risk-free) about an investment, income or capital?",
+    "applies_to": "all",
+    "fail_example": "Your money, protected.",
+    "pass_example": "Built to manage risk. Capital at risk."
+  },
+  {
+    "id": "HOUSE-03",
+    "source": "House rule: Marketing Compliance Policy v1, s.3.1",
+    "source_url": "",
+    "rule_text": "Any target return (IRR, yield, multiple or growth target) must be followed in the same paragraph by: 'Targets are not guaranteed and may not be achieved.'",
+    "test": "Is there a target return without the exact house warning in the same paragraph?",
+    "applies_to": "all",
+    "fail_example": "Fund III targets a 12-15% net IRR.",
+    "pass_example": "Fund III targets a 12-15% net IRR. Targets are not guaranteed and may not be achieved."
+  },
+  {
+    "id": "HOUSE-04",
+    "source": "House rule: Marketing Compliance Policy v1, s.4.2",
+    "source_url": "",
+    "rule_text": "Calls to action must not pressure the reader: no 'act now', 'don't miss out', 'limited time', 'last chance' or countdowns, and no encouragement to forward or share the promotion.",
+    "test": "Does a call to action create urgency or ask the reader to share or forward the material?",
+    "applies_to": "all",
+    "fail_example": "Don't miss out - share this with friends and family today.",
+    "pass_example": "Read the fund documents to find out more."
+  },
+  {
+    "id": "HOUSE-05",
+    "source": "House rule: Marketing Compliance Policy v1, s.5.1",
+    "source_url": "",
+    "rule_text": "Do not compare investment returns with cash savings or deposit rates.",
+    "test": "Does the claim compare returns or income with savings accounts, deposits or cash rates?",
+    "applies_to": "all",
+    "fail_example": "Savings accounts pay 1.9%; our fund yields 4.8%.",
+    "pass_example": "The fund aims to provide an income, which is not guaranteed and can fall."
+  },
+  {
+    "id": "HOUSE-06",
+    "source": "House rule: Social Media Standard v1, s.1",
+    "source_url": "",
+    "rule_text": "In social media images, the risk warning must appear inside the image at a size and contrast at least equal to the body copy, not only in the caption.",
+    "test": "For an image, is the risk warning missing from the image, or smaller / lower contrast than the body copy?",
+    "applies_to": "all",
+    "fail_example": "Risk warning in 12px light grey at the bottom edge of the ad.",
+    "pass_example": "'Capital at risk' set in the same size and colour as the body copy beneath the headline."
+  },
+  {
+    "id": "HOUSE-07",
+    "source": "House rule: Marketing Compliance Policy v1, s.6.1",
+    "source_url": "",
+    "rule_text": "Name the fund in full, with share class, at first mention.",
+    "test": "Is the product first mentioned by a nickname or partial name without the full fund name and share class?",
+    "applies_to": "all",
+    "fail_example": "Our income fund returned...",
+    "pass_example": "The Example UK Equity Income Fund (B Accumulation shares) returned..."
+  }
+]

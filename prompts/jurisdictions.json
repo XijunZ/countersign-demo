@@ -1,0 +1,29 @@
+{
+  "regulators": [
+    {"id": "FCA", "name": "UK FCA", "country": "UK"},
+    {"id": "BaFin", "name": "Germany BaFin (applies EU / ESMA rules)", "country": "DE"},
+    {"id": "SEC", "name": "US SEC / FINRA", "country": "US"}
+  ],
+  "markets": [
+    {"id": "UK", "name": "United Kingdom", "rulebooks": ["fair_clear", "risk_warnings", "performance", "status_audience"]},
+    {"id": "EU", "name": "EU / EEA (incl. Germany)", "rulebooks": ["eu_esma"]},
+    {"id": "US", "name": "United States", "rulebooks": ["us_sec"]}
+  ],
+  "rulebook_labels": {
+    "fair_clear": "FCA: fair, clear, not misleading",
+    "risk_warnings": "FCA: risk warnings",
+    "performance": "FCA: performance",
+    "status_audience": "FCA/FSMA: status and audience",
+    "eu_esma": "EU: ESMA marketing guidelines",
+    "us_sec": "US: SEC Marketing Rule + FINRA 2210",
+    "house_rules": "Your house rules"
+  },
+  "notes": [
+    "Rules of the market where the promotion is received apply; issuer home-state rules also apply.",
+    "The EU rulebook covers fund marketing (UCITS/AIFs) under Regulation (EU) 2019/1156 and ESMA34-45-1272; it does not cover MiFID II investment-firm communications, PRIIPs or national rules such as German WpHG or BaFin circulars.",
+    "ESMA guidelines are comply-or-explain for national regulators; check the ESMA compliance table for a given country's status.",
+    "The US rulebook covers SEC-registered investment advisers (Marketing Rule) and FINRA member broker-dealers (Rule 2210); which one applies depends on who issues the communication. State rules and FINRA filing requirements are not covered.",
+    "Each rulebook is a selection of key rules, not the full regime. Output is a first-pass review to support, not replace, a qualified compliance officer.",
+    "Rule texts are quoted from official sources (FCA Handbook, EUR-Lex, ESMA, eCFR, FINRA) as retrieved in October 2026; rules change, so re-check before relying on them."
+  ]
+}
